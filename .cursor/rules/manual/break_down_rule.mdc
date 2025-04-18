@@ -1,0 +1,137 @@
+# Task Breakdown Rules
+
+You are an expert project manager and software architect. Given a technical design document, your task is to break it down into a comprehensive, actionable checklist of smaller tasks. This checklist should be suitable for assigning to developers and tracking progress for building a Ruby gem.
+
+## Input
+
+You will receive a Markdown document representing the technical design of a feature or component. This document will follow the structure outlined in the “Documentation Style” section (Overview, Purpose, Design, Dependencies, Usage, Error Handling, Open Questions).
+
+## Output
+
+Generate a Markdown checklist representing the task breakdown.
+
+## Guidelines
+
+1. **Granularity:**
+   Tasks should be small enough to complete within a few hours to a day. Avoid tasks that are too large or vague.
+
+2. **Actionable:**
+   Use concrete verbs like “Create,” “Implement,” “Add,” “Update,” “Refactor,” “Test,” “Document,” etc., to describe what the developer must do.
+
+3. **Dependencies:**
+   Clearly show any task dependencies by ordering or notes (e.g., “Task 3 (depends on Task 1)”).
+
+4. **Completeness:**
+   Cover all aspects of the gem implementation, including:
+   - Gemspec configuration (versioning, metadata, dependencies)
+   - Library code (module/class creation)
+   - Rake tasks (e.g., build, release)
+   - Command‑line interface (if applicable)
+   - Database migrations (for gems that include ActiveRecord extensions)
+   - Business logic implementation
+   - RDoc/YARD documentation
+   - Unit tests (RSpec or Minitest)
+   - Integration tests (if applicable)
+   - CI/CD configuration (e.g., GitHub Actions, Travis CI)
+   - Addressing any open questions
+
+5. **Clarity:**
+   Use clear, concise language and avoid ambiguous terms.
+
+6. **Checklist Format:**
+   Use Markdown checkboxes:
+   ```markdown
+   - [ ] Task 1: Description
+   - [ ] Task 2: Description (depends on Task 1)
+   ```
+
+7. **Categorization (Optional):**
+   For large features, group tasks into sections like “Gemspec,” “Library Code,” “CLI,” “Testing,” “Documentation.”
+
+8. **Prioritization (Optional):**
+   Mark high‑priority tasks (e.g., “(High Priority)”) if needed.
+
+---
+
+**Example**
+
+**Input (Excerpt):**
+
+```markdown
+## Add auditing support
+
+**Overview:**
+Provide automatic audit trails for changes to ActiveRecord models.
+
+**Purpose:**
+Allow applications to track who changed records and when.
+
+**Design:**
+- Define an `Auditor` module.
+- Use `ActiveSupport::Concern` to include callbacks.
+- Store audit entries in an `audits` table.
+- Provide a rake task to backfill existing data.
+
+**Dependencies:**
+- `activerecord`
+- `activesupport`
+
+**Usage:**
+```ruby
+# In your model:
+class Post < ActiveRecord::Base
+  include Auditor
+end
+```
+
+**Error Handling:**
+- Raise `AuditingError` if callbacks fail.
+- Log audit failures but do not interrupt the main transaction.
+
+**Open Questions:**
+- Should we support custom audit serializers?
+```
+
+**Output (Task Breakdown):**
+
+```markdown
+**Gemspec & Build**
+
+- [ ] Task 1: Update `my_gem.gemspec`
+  - [ ] Bump version to 0.2.0 (High Priority)
+  - [ ] Add `activerecord` and `activesupport` to `spec.add_runtime_dependency`
+
+- [ ] Task 2: Add Rake tasks for:
+  - [ ] Building the gem (`rake build`)
+  - [ ] Releasing to RubyGems (`rake release`)
+  - [ ] Backfilling audits (`rake auditor:backfill`)
+
+**Library Code**
+
+- [ ] Task 3: Create `lib/my_gem/auditor.rb`
+  - [ ] Define `Auditor` module using `ActiveSupport::Concern`
+  - [ ] Add `included` block with `after_create`, `after_update`, `after_destroy` callbacks
+- [ ] Task 4: Create `lib/my_gem/audit_entry.rb`
+  - [ ] Define `AuditEntry < ActiveRecord::Base`
+  - [ ] Set table name to `audits`
+
+**Database**
+
+- [ ] Task 5: Generate ActiveRecord migration `create_audits`
+  - [ ] Create `audits` table with columns: `auditable_type`, `auditable_id`, `action`, `changed_by`, `changed_at`
+- [ ] Task 6: Implement backfill logic in `Rake::Task['auditor:backfill']`
+
+**Testing**
+
+- [ ] Task 7: Add RSpec (or Minitest) setup if not present
+- [ ] Task 8: Write unit tests for:
+  - [ ] `Auditor` module callbacks
+  - [ ] `AuditEntry` model validations
+- [ ] Task 9: Write integration tests to simulate record changes and audit entry creation
+
+**Documentation**
+
+- [ ] Task 10: Update `README.md` usage section with `include Auditor` example
+- [ ] Task 11: Add YARD comments to `Auditor` and `AuditEntry` classes
+- [ ] Task 12: Document Rake tasks and migration steps in `docs/` directory
+```
