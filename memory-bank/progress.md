@@ -2,85 +2,92 @@
 
 ## Completed Tasks
 
-### Phase 1: Core Structure & Base Components
+### Phase 1: Core Structure & Base Components ✅
 - [x] Task 1: Initialize the `rails-hmvc` gem project structure
   - Created basic gem structure
   - Set up gemspec with dependencies
   - Added core files and directories
 
-- [x] Task 2: Implement `Rails::Hmvc::Controllers::ApplicationController` with concerns
-  - Created ApplicationController with API base
-  - Implemented Renderable concern
-  - Implemented Errorable concern
-  - Added pagination support
+- [x] Task 2: Implement generator templates
+  - Added templates for controllers, operations, forms, serializers
+  - Added templates for concerns (Renderable, Errorable)
+  - Added templates for error handling
 
-- [x] Task 3: Implement `Rails::Hmvc::Forms::ApplicationForm`
-  - Added ActiveModel integration
-  - Implemented valid! method
-  - Added error message formatting
+### Phase 2: Generators and CLI 🚧
+- [x] Task 10: Implement the `rails g hmvc:init` generator
+  - Created generator class
+  - Added directory creation
+  - Added configuration file template
+  - Added application.rb modification
+  - Added base class templates
 
-- [x] Task 4: Implement `Rails::Hmvc::Operations::ApplicationOperation`
-  - Added call interface
-  - Implemented initialization logic
-  - Added form validation step
-  - Added authorization support
+- [x] Task 11: Implement the `rails g hmvc:resources` generator
+  - Created generator class
+  - Added resource creation logic
+  - Added route injection
+  - Added integration with individual generators
 
-- [x] Task 5: Implement `Rails::Hmvc::Serializers::ApplicationSerializer`
-  - Created base serializer
-  - Added timestamp formatting
+- [x] Task 12: Implement the `rails g hmvc:operation` generator
+  - Created generator class
+  - Added operation templates
+  - Added step generation
+  - Added test files
 
-- [x] Task 6: Implement `Rails::Hmvc::Errors::ExceptionError`
-  - Created base error class
-  - Added standard error types
-  - Implemented error details support
+- [x] Task 13: Implement the `rails g hmvc:form` generator
+  - Created generator class
+  - Added form templates
+  - Added attribute and validation parsing
+  - Added test files
 
-- [x] Task 7: Implement `Rails::Hmvc::Errors::ResourceError`
-  - Added error formatting
-  - Implemented error type handling
-  - Added status code mapping
+- [x] Task 14: Implement the `rails g hmvc:controller` generator
+  - Created generator class
+  - Added controller templates
+  - Added action generation
+  - Added serializer integration
 
-- [x] Task 8: Define base directory structure
-  - Organized files under lib/rails/hmvc/
-  - Set up proper namespacing
-  - Added require statements
+- [x] Task 15: Implement the `rails g hmvc:serializer` generator
+  - Created generator class
+  - Added serializer templates
+  - Added attribute and association parsing
 
-- [x] Task 9: Set up gem dependencies
-  - Added Rails dependency
-  - Added ActiveModelSerializers
-  - Added development dependencies
+### Phase 3: Configuration 📝
+- [x] Task 16: Implement loading and parsing of `config/rails_hmvc.yml`
+  - Added configuration loading in generator_helpers
+  - Added error handling for various YAML versions
+  - Added support for different Rails environments
+
+- [x] Task 17: Ensure CLI flags override YAML configuration settings
+  - Added priority order for options
+  - Added default values
 
 ## Next Tasks
 
-### Phase 2: Generators and CLI
-- [ ] Task 10: Implement `rails g hmvc:init` generator
-- [ ] Task 11: Implement `rails g hmvc:resources` generator
-- [ ] Task 12: Implement `rails g hmvc:operation` generator
-- [ ] Task 13: Implement `rails g hmvc:form` generator
-- [ ] Task 14: Implement `rails g hmvc:controller` generator
-- [ ] Task 15: Create templates for generated files
-
-### Phase 3: Configuration
-- [ ] Task 16: Implement rails_hmvc.yml configuration
-- [ ] Task 17: Add CLI flag support
-
-### Phase 4: Testing
+### Phase 4: Testing 🧪
 - [ ] Task 18: Set up RSpec
-- [ ] Task 19: Write base class tests
-- [ ] Task 20: Write concern tests
-- [ ] Task 21: Write error class tests
-- [ ] Task 22: Write generator tests
-- [ ] Task 23: Write integration tests
+  - Add generator tests
+  - Add integration tests
 
-### Phase 5: Documentation
-- [ ] Task 24: Write README.md
-- [ ] Task 25: Document CLI commands
-- [ ] Task 26: Create example application
-- [ ] Task 27: Document conventions
-- [ ] Task 28: Add YARD documentation
+### Phase 5: Documentation & Examples 📚
+- [ ] Task 24: Write `README.md`
+  - Installation guide
+  - Usage examples
+  - Generator documentation
 
-## Technical Debt & Future Improvements
-- Consider adding GraphQL support
-- Add more comprehensive error handling
-- Consider adding caching strategies
-- Add performance optimizations
-- Consider adding websocket support
+- [ ] Task 25: Document all CLI commands
+  - Document all options
+  - Provide usage examples
+
+- [ ] Task 26: Create example Rails application
+  - Create a comprehensive demo
+  - Show integration with Rails
+
+## Issues to Address
+1. **Namespace handling** - Ensure proper handling of nested namespaces in form and operation generators
+2. **Integration testing** - Need to verify all generators work together seamlessly
+3. **Error handling** - Improve error messages when generators fail
+
+## Current Focus
+- Complete integration tests
+- Improve error handling
+- Write comprehensive documentation
+- Create example application to demonstrate usage

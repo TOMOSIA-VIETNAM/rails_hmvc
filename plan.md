@@ -35,14 +35,22 @@
     - [ ] Add operation templates
     - [ ] Add test files
 
-- [ ] Task 13: Implement the `rails g hmvc:form` generator.
-    - [ ] Create generator class
-    - [ ] Add form templates
-    - [ ] Add test files
+- [x] Task 13: Implement the `rails g hmvc:form` generator.
+    - [x] Create generator class in `lib/generators/hmvc/form/form_generator.rb`
+    - [x] Implement attribute parsing with type support
+    - [x] Implement validation parsing with complex options
+    - [x] Add configuration integration for parent class
+    - [x] Add form template with proper namespacing
+    - [x] Add test files
+    - [ ] Add documentation and usage examples
 
 - [ ] Task 14: Implement the `rails g hmvc:controller` generator.
-    - [ ] Create generator class
-    - [ ] Add controller templates
+    - [ ] Create generator class in `lib/generators/hmvc/controller/controller_generator.rb`
+    - [ ] Add support for RESTful actions
+    - [ ] Add operation integration
+    - [ ] Add proper namespacing and inheritance
+    - [ ] Add configuration integration
+    - [ ] Add controller template
     - [ ] Add test files
 
 - [ ] Task 15: Create templates for generated files.
@@ -59,6 +67,9 @@
     - [ ] Add YAML parsing
     - [ ] Add validation
     - [ ] Add default values
+    - [ ] Add generator-specific configuration support
+    - [ ] Add version namespace configuration
+    - [ ] Add parent class configuration
 
 - [ ] Task 17: Ensure CLI flags override YAML configuration settings.
     - [ ] Add flag parsing

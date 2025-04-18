@@ -1,21 +1,22 @@
 # frozen_string_literal: true
 
+require 'rails_hmvc/version'
+require 'rails'
 require 'active_model'
 require 'active_model_serializers'
 
-require 'rails_hmvc/version'
-require 'rails_hmvc/errors/exception_error'
-require 'rails_hmvc/errors/resource_error'
-require 'rails_hmvc/concerns/renderable'
-require 'rails_hmvc/concerns/errorable'
-require 'rails_hmvc/controllers/application_controller'
-require 'rails_hmvc/forms/application_form'
-require 'rails_hmvc/operations/application_operation'
-require 'rails_hmvc/serializers/application_serializer'
+module RailsHmvc
+  class Error < StandardError; end
 
-module Rails
-  module Hmvc
-    class Error < StandardError; end
-    # Your code goes here...
-  end
+  class Railtie < Rails::Railtie
+    generators do
+      require_relative "generators/hmvc/generator_helpers"
+      require_relative "generators/hmvc/init/init_generator"
+      require_relative "generators/hmvc/form/form_generator"
+      require_relative "generators/hmvc/operation/operation_generator"
+      require_relative "generators/hmvc/resources/resources_generator"
+      require_relative "generators/hmvc/controller/controller_generator"
+      require_relative "generators/hmvc/serializer/serializer_generator"
+    end
+  end if defined?(Rails::Railtie)
 end

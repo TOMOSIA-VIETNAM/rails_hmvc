@@ -1,0 +1,14 @@
+# frozen_string_literal: true
+
+class ApplicationController < ActionController::Base
+  include Renderable
+  include Errorable
+
+  wrap_parameters false
+
+  # Skip the CSRF token authenticity check for API-only applications
+  skip_before_action :verify_authenticity_token, if: -> { request.format.json? }
+
+  # Add common before_actions here
+  # before_action :authenticate_user!
+end

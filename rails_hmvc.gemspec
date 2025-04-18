@@ -4,7 +4,7 @@ require_relative "lib/rails_hmvc/version"
 
 Gem::Specification.new do |spec|
   spec.name = "rails_hmvc"
-  spec.version = Rails::Hmvc::VERSION
+  spec.version = RailsHmvc::VERSION
   spec.authors = ["Minh Tang"]
   spec.email = [""]
 

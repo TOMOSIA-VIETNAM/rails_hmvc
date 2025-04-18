@@ -1,0 +1,12 @@
+module V1
+  class V1Controller < ApplicationController
+    # Add V1-specific controller functionality here
+    before_action :set_default_format
+
+    private
+
+    def set_default_format
+      request.format = :json unless params[:format]
+    end
+  end
+end

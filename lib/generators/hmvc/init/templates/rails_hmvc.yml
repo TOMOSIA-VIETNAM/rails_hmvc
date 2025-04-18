@@ -1,0 +1,22 @@
+default: &default
+  type: api
+  parent_controller: ApplicationController
+  parent_operation: ApplicationOperation
+  parent_form: ApplicationForm
+  parent_serializer: ApplicationSerializer
+  skip_routes: false
+  versions:
+    - v1
+  api:
+    parent_controller: ApplicationController
+  web:
+    parent_controller: ApplicationController
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default

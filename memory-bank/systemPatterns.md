@@ -1,141 +1,180 @@
-# System Patterns: rails_hmvc Gem
+# System Patterns
 
-## 1. HMVC Architecture
+## System Architecture
 
-The architecture emphasizes clear separation of responsibilities:
+Rails HMVC Gem hiện tại sử dụng mô hình "code generation only" thay vì cung cấp runtime components. Gem chỉ cung cấp các generators để tạo ra mã nguồn cần thiết cho dự án Rails mới, nhằm đảm bảo cấu trúc HMVC được áp dụng đúng cách.
 
-| Layer       | Primary Responsibility                                 |
-|-------------|--------------------------------------------------------|
-| **Controller** | Handles routing, receives requests, returns responses; Only calls Operations, contains no business logic |
-| **Operation**  | Orchestrates business logic through steps (`step_*`); Exposes only the `call` method      |
-| **Form**       | Validates input parameters; Does not interact with the DB |
-| **Model**      | Declares relationships, scopes, enums, persistence; Extended logic is placed in concerns   |
-| **Error Layer**| Manages exceptions, renders standardized errors          |
+```mermaid
+graph TD
+    subgraph "Generators"
+        IG[Init Generator]
+        RG[Resources Generator]
+        CG[Controller Generator]
+        OG[Operation Generator]
+        FG[Form Generator]
+        SG[Serializer Generator]
+    end
 
----
+    subgraph "Templates"
+        CT[Controller Templates]
+        OT[Operation Templates]
+        FT[Form Templates]
+        ST[Serializer Templates]
+        ET[Error Templates]
+        CMT[Concern Templates]
+    end
 
-## 2. Standard Directory Structure
+    subgraph "Configuration"
+        YAML[rails_hmvc.yml]
+        GH[Generator Helpers]
+    end
+
+    IG --> CT
+    IG --> ET
+    IG --> CMT
+    IG --> YAML
+
+    RG --> CG
+    RG --> OG
+    RG --> FG
+    RG --> SG
+
+    CG --> CT
+    OG --> OT
+    FG --> FT
+    SG --> ST
+
+    GH --> YAML
+```
+
+## HMVC Pattern
+
+Gem sinh ra cấu trúc code tuân theo mô hình HMVC (Hierarchical Model-View-Controller). Cấu trúc này gồm:
 
 ```
 app/
-├── controllers/   # Controllers namespaced by version
+├── controllers/   # Xử lý HTTP requests và responses
 │   └── v1/
 │       └── users_controller.rb
-├── operations/    # Business logic
+├── operations/    # Xử lý business logic
 │   └── v1/users/
 │       ├── index_operation.rb
-│       ├── show_operation.rb
-│       ├── create_operation.rb
-│       ├── update_operation.rb
-│       └── destroy_operation.rb
-├── forms/         # Validation
+│       └── ...
+├── forms/         # Xử lý validation và data transformation
 │   └── v1/users/
-│       ├── index_form.rb
-│       ├── show_form.rb
 │       ├── create_form.rb
-│       ├── update_form.rb
-│       └── destroy_form.rb
-├── models/        # ActiveRecord / Mongoid models
+│       └── ...
+├── models/        # ActiveRecord/Mongoid models và database logic
 │   └── user.rb
+└── serializers/   # Xử lý JSON serialization
+    └── v1/
+        └── user_serializer.rb
+
 lib/
 └── errors/        # Custom error classes
-    ├── application_error.rb
-    ├── not_found_error.rb
-    └── unauthorized_error.rb
+    ├── base_error.rb
+    ├── api_error.rb
+    └── resource_error.rb
 ```
 
----
+## Generator System
 
-## 3. Detailed Layer Conventions
+### Hierarchical Generator Structure
 
-### 3.1. Controller
+```mermaid
+graph TD
+    IG[Init Generator] --> RG[Resources Generator]
+    RG --> CG[Controller Generator]
+    RG --> OG[Operation Generator]
+    RG --> FG[Form Generator]
+    RG --> SG[Serializer Generator]
+```
 
-- **Only calls Operations**:
-  ```ruby
-  op = V1::Users::CreateOperation.new(params, current_member: current_member)
-  op.call
-  render_json(op.result)
-  ```
-- **No business logic**: Avoid using `.save`, `.update`, etc.
-- **Callbacks allowed** (e.g., `before_action :authenticate_user!`).
+- **Init Generator**: Khởi tạo cấu trúc HMVC cơ bản
+- **Resources Generator**: Tạo đầy đủ các components cho một resource
+- **Individual Generators**: Có thể được sử dụng riêng lẻ để tạo components cụ thể
 
-### 3.2. Operation
+### Configuration System
 
-- **File & Class Naming**:
-  - Location: `app/operations/v1/users/create_operation.rb`
-  - Class: `class V1::Users::CreateOperation < ApplicationOperation`
-- **Public Interface**: Only the `call` method is public. Internal steps are implemented as private methods named `step_*`.
-- **Single Responsibility Steps**: Each `step_*` method performs one distinct task.
-- **Limited Inheritance**: Primarily inherit from `ApplicationOperation` or a parent namespace operation.
+```mermaid
+graph LR
+    YAML[rails_hmvc.yml] --> GH[Generator Helpers]
+    GH --> G[Generators]
+    CLI[CLI Options] --> G
+```
 
-### 3.3. Form
+- **YAML Config**: Cung cấp defaults cho generators
+- **CLI Options**: Ghi đè cấu hình từ YAML
+- **Generator Helpers**: Xử lý việc đọc và merge cấu hình
 
-- **File & Class Naming**:
-  - Location: `app/forms/v1/users/create_form.rb`
-  - Class: `class V1::Users::CreateForm < ApplicationForm`
-- **Purpose**: Solely for validation using `valid!` or `validate`.
-- **No DB Interaction**.
+## Component Interaction Patterns
 
-### 3.4. Model
+### Request Flow
 
-- **Content**: Contains only associations, scopes, and enums.
-- **Extended Logic**: Place in `app/models/concerns/...` and include in the model.
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Controller
+    participant Form
+    participant Operation
+    participant Model
+    participant Serializer
 
-### 3.5. Error Layer
+    Client->>Controller: HTTP Request
+    Controller->>Form: Initialize & Validate
+    Form-->>Controller: Validated Data
+    Controller->>Operation: Call with Data
+    Operation->>Model: Database Operations
+    Model-->>Operation: Results
+    Operation-->>Controller: Business Logic Results
+    Controller->>Serializer: Format Response
+    Serializer-->>Controller: JSON Response
+    Controller-->>Client: HTTP Response
+```
 
-- **`Errorable` Module** (typically in `ApplicationController`):
-  - Rescues exceptions and delegates to `Renderable#render_error`.
-  - Sends notifications for 500 errors.
-  - Filters sensitive fields from parameters.
+### Error Handling
 
----
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Controller
+    participant ErrorHandler
+    participant ErrorSerializer
 
-## 4. Example Implementation
+    Client->>Controller: Invalid Request
+    Controller->>ErrorHandler: Handle Exception
+    ErrorHandler->>ErrorSerializer: Format Error
+    ErrorSerializer-->>ErrorHandler: Error JSON
+    ErrorHandler-->>Controller: Error Response
+    Controller-->>Client: HTTP Error Response
+```
+
+## Versioning Pattern
+
+Rails HMVC sử dụng namespace-based versioning:
 
 ```ruby
-# app/controllers/v1/users_controller.rb
-class V1::UsersController < ApplicationController
-  def create
-    op = V1::Users::CreateOperation.new(params, current_member: current_member)
-    op.call
-    render_json(op.result)
-  end
-
-  def destroy
-    op = V1::Users::DestroyOperation.new(params, current_member: current_member)
-    op.call
-    render_json(op.result)
+# Controller
+module V1
+  class UsersController < V1Controller
+    # ...
   end
 end
 
-# app/operations/v1/users/create_operation.rb
-class V1::Users::CreateOperation < ApplicationOperation
-  def call
-    step_validate
-    step_create_record
-    step_notify_user
-  end
-
-  private
-
-  def step_validate
-    V1::Users::CreateForm.new(params).valid!
-  end
-
-  def step_create_record
-    @user = User.create!(permitted_params)
-  end
-
-  def step_notify_user
-    UserMailer.welcome(@user).deliver_later
+# Operation
+module V1
+  module Users
+    class CreateOperation < ApplicationOperation
+      # ...
+    end
   end
 end
 
-# app/forms/v1/users/create_form.rb
-class V1::Users::CreateForm < ApplicationForm
-  attribute :email, :string
-  attribute :password, :string
-
-  validates :email, :password, presence: true
-end
+# URL Routes
+# /v1/users
 ```
+
+Điều này cho phép:
+1. Dễ dàng tạo và duy trì nhiều phiên bản API
+2. Cô lập các thay đổi không tương thích ngược
+3. Cung cấp path rõ ràng cho clients
