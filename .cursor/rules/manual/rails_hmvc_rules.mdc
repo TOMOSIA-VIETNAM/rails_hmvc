@@ -1,0 +1,117 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Rails HMVC Architecture Rules
+
+## 1. Directory Structure Rules
+
+### 1.1 Component Organization
+- All components must be organized under appropriate namespaced directories (e.g., `v1/`)
+- Controllers must be placed in `app/controllers/{version}/`
+- Operations must be placed in `app/operations/{version}/{resource}/`
+- Forms must be placed in `app/forms/{version}/{resource}/`
+- Serializers must be placed in `app/serializers/{version}/`
+- Models must be placed in `app/models/`
+- Errors must be placed in `lib/errors/`
+
+### 1.2 File Size Limits
+- Individual files should not exceed 300 lines of code
+- If a file grows beyond this limit, it should be refactored into smaller, focused components
+
+## 2. Component Rules
+
+### 2.1 Controller Rules
+- Controllers must inherit from `ApplicationController` or its versioned variants
+- Controllers should only handle HTTP requests and responses
+- Business logic must be delegated to Operations
+- Controllers must use the Renderable and Errorable concerns
+- Controllers must not contain direct database calls
+- Controllers must use wrap_parameters false
+
+### 2.2 Form Rules
+- Forms must inherit from `ApplicationForm`
+- Forms must include ActiveModel::Model and ActiveModel::Attributes
+- Forms must only handle parameter validation and data transformation
+- Forms must not interact directly with the database
+- Forms must implement valid! method for validation
+- Forms must provide clear error messages
+
+### 2.3 Operation Rules
+- Operations must inherit from `ApplicationOperation`
+- Operations must expose only a public `call` interface
+- Complex business logic must be broken down into private `step_` methods
+- Operations must handle all business logic and database interactions
+- Operations must receive params and context data through initialization
+
+### 2.4 Serializer Rules
+- Serializers must inherit from `ApplicationSerializer`
+- Serializers must handle only response formatting
+- Serializers must not contain business logic
+- Serializers must follow consistent naming conventions
+
+### 2.5 Error Handling Rules
+- Custom errors must inherit from appropriate base error classes
+- Error responses must follow standardized JSON format
+- Error handling must be implemented through the Errorable concern
+- Resource-specific errors must use ResourceError class
+
+## 3. Code Quality Rules
+
+### 3.1 General Practices
+- Follow Single Responsibility Principle (SRP)
+- Maintain clear separation of concerns
+- Use meaningful and consistent naming conventions
+- Avoid code duplication
+- Write self-documenting code
+- Include appropriate comments for complex logic
+
+### 3.2 Testing Requirements
+- All components must have corresponding test files
+- Tests must cover both success and failure scenarios
+- Controllers must have request specs
+- Operations must have unit tests
+- Forms must have validation specs
+- Models must have unit and integration tests
+
+## 4. Configuration Rules
+
+### 4.1 YAML Configuration
+- Project configuration must be defined in `rails_hmvc.yml`
+- Configuration must specify project type (api/web)
+- Parent classes must be defined in configuration
+- Version namespaces must be declared in configuration
+
+### 4.2 Environment Handling
+- Environment-specific code must be properly segregated
+- No stubbing or fake data patterns in development or production
+- Test environment may use mocked data
+- Environment variables must be properly managed through .env files
+
+## 5. API Design Rules
+
+### 5.1 Versioning
+- All API endpoints must be versioned
+- Version must be included in URL path
+- Breaking changes must trigger version increment
+
+### 5.2 Response Format
+- Responses must follow consistent JSON structure
+- Error responses must include appropriate HTTP status codes
+- Success responses must include appropriate metadata
+- Pagination must be implemented where applicable
+
+## 6. Security Rules
+
+### 6.1 General Security
+- No sensitive data in logs or error messages
+- Proper authentication and authorization checks
+- No hardcoded credentials or API keys
+- Use of environment variables for sensitive data
+
+### 6.2 Input Validation
+- All user input must be validated
+- Form objects must handle input sanitization
+- Proper error handling for invalid input
+- Protection against common security vulnerabilities
