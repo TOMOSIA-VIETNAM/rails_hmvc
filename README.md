@@ -177,6 +177,17 @@ A typical request flow with Rails HMVC:
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
+### Setup Demo Rails
+
+1. Run `bundle init`
+2. Modify Gemfile: add `gem 'rails', '~> 8.0', '>= 8.0.2'`
+3. Run `bundle exec rails new . --api --force --skip-test --skip-bundle`
+4. Modify Gemfile: add `gem 'rails_hmvc', path: '../'`
+5. Run `bundle install --path vendor/bundle`
+6. Run `bundle exec rails g | grep rails_hmvc` to check gem installed
+7. Run `rails g rails_hmvc:init`
+
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/yourusername/rails_hmvc.

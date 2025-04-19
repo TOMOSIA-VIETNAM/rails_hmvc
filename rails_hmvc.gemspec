@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   spec.name = "rails_hmvc"
   spec.version = RailsHmvc::VERSION
   spec.authors = ["Minh Tang"]
-  spec.email = [""]
+  spec.email = ["minh.tang1@tomosia.com"]
 
   spec.summary = "Rails HMVC architecture implementation"
   spec.description = "A gem that provides HMVC architecture pattern for Rails applications with controllers, forms, operations, and serializers"
@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
   spec.files = Dir.chdir(__dir__) do
     `git ls-files -z`.split("\x0").reject do |f|
-      (File.expand_path(f) == __FILE__) || f.start_with?(*%w[bin/ test/ spec/ features/ .git .circleci appveyor])
+      (File.expand_path(f) == __FILE__) || f.start_with?(*%w[bin/ test/ spec/ features/ .git .circleci appveyor .cursor])
     end
   end
   spec.bindir = "exe"
