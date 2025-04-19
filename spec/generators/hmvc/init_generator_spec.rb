@@ -15,10 +15,10 @@ RSpec.describe RailsHmvc::Generators::InitGenerator, type: :generator do
 
     it 'creates HMVC directories' do
       %w[
-        app/controllers/v1
-        app/operations/v1
-        app/forms/v1
-        app/serializers/v1
+        app/controllers
+        app/operations
+        app/forms
+        app/serializers
         app/models
         lib/errors
       ].each do |dir|
@@ -37,8 +37,8 @@ RSpec.describe RailsHmvc::Generators::InitGenerator, type: :generator do
     end
 
     it 'creates base controllers' do
-      expect(file('app/controllers/application_controller.rb')).to exist
-      expect(file('app/controllers/v1/v1_controller.rb')).to exist
+      expect(file('app/controllers/main_controller.rb')).to exist
+      expect(file('app/controllers/api_controller.rb')).to exist
     end
 
     it 'modifies application.rb' do

@@ -73,7 +73,7 @@ module RailsHmvc
       end
 
       def parent_serializer_class
-        options[:parent] || 'ApplicationSerializer'
+        options[:parent] || 'MainSerializer'
       end
 
       def attributes_list

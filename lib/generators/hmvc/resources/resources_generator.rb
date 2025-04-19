@@ -123,15 +123,15 @@ ROUTE
       end
 
       def parent_operation_class
-        options[:parent_operation] || 'ApplicationOperation'
+        options[:parent_operation] || 'MainOperation'
       end
 
       def parent_form_class
-        options[:parent_form] || 'ApplicationForm'
+        options[:parent_form] || 'MainForm'
       end
 
       def parent_serializer_class
-        options[:parent_serializer] || 'ApplicationSerializer'
+        options[:parent_serializer] || 'MainSerializer'
       end
     end
   end

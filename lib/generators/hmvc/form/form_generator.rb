@@ -93,7 +93,7 @@ module RailsHmvc
       end
 
       def determine_parent_class
-        options[:parent] || load_config.dig('parent_form') || 'ApplicationForm'
+        options[:parent] || load_config.dig('parent_form') || 'MainForm'
       end
 
       def form_class_name

@@ -10,3 +10,5 @@
 # rspec failure tracking
 .rspec_status
 rails_hmvc-*.gem
+example/
+vendor/bundle/
