@@ -5,10 +5,10 @@ module RailsHmvc
 
       def create_hmvc_directories
         %w[
-          app/controllers/v1
-          app/operations/v1
-          app/forms/v1
-          app/serializers/v1
+          app/controllers
+          app/operations
+          app/forms
+          app/serializers
           app/models
           lib/errors
           app/controllers/concerns
@@ -61,8 +61,8 @@ module RailsHmvc
       end
 
       def create_base_classes
-        template 'controllers/application_controller.rb.tt', 'app/controllers/application_controller.rb'
-        template 'controllers/v1_controller.rb.tt', 'app/controllers/v1/v1_controller.rb'
+        template 'controllers/main_controller.rb.tt', 'app/controllers/main_controller.rb'
+        template 'controllers/api_controller.rb.tt', 'app/controllers/api_controller.rb'
         template 'forms/application_form.rb.tt', 'app/forms/application_form.rb'
         template 'operations/application_operation.rb.tt', 'app/operations/application_operation.rb'
       end
