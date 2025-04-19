@@ -73,7 +73,7 @@ module RailsHmvc
       end
 
       def parent_operation_class
-        options[:parent] || 'ApplicationOperation'
+        options[:parent] || 'MainOperation'
       end
     end
   end

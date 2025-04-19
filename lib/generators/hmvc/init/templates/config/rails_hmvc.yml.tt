@@ -8,10 +8,10 @@ development:
   type: api
 
   # Parent classes for generated components
-  parent_controller: ApplicationController
-  parent_operation: ApplicationOperation
-  parent_form: ApplicationForm
-  parent_serializer: ApplicationSerializer
+  parent_controller: MainController
+  parent_operation: MainOperation
+  parent_form: MainForm
+  parent_serializer: MainSerializer
 
   # Default behavior for adding routes
   skip_routes: false
@@ -25,10 +25,10 @@ test:
   type: api
 
   # Parent classes for generated components
-  parent_controller: ApplicationController
-  parent_operation: ApplicationOperation
-  parent_form: ApplicationForm
-  parent_serializer: ApplicationSerializer
+  parent_controller: MainController
+  parent_operation: MainOperation
+  parent_form: MainForm
+  parent_serializer: MainSerializer
 
   # Default behavior for adding routes
   skip_routes: false
@@ -42,10 +42,10 @@ production:
   type: api
 
   # Parent classes for generated components
-  parent_controller: ApplicationController
-  parent_operation: ApplicationOperation
-  parent_form: ApplicationForm
-  parent_serializer: ApplicationSerializer
+  parent_controller: MainController
+  parent_operation: MainOperation
+  parent_form: MainForm
+  parent_serializer: MainSerializer
 
   # Default behavior for adding routes
   skip_routes: false

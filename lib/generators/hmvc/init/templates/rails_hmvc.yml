@@ -14,15 +14,15 @@ default: &default
   skip_routes: false
 
   # Parent classes for generated components
-  parent_controller: ApplicationController
-  parent_operation: ApplicationOperation
-  parent_form: ApplicationForm
-  parent_serializer: ApplicationSerializer
+  parent_controller: MainController
+  parent_operation: MainOperation
+  parent_form: MainForm
+  parent_serializer: MainSerializer
 
   api:
-    parent_controller: ApplicationController
+    parent_controller: MainController
   web:
-    parent_controller: ApplicationController
+    parent_controller: MainController
 
 development:
   <<: *default
