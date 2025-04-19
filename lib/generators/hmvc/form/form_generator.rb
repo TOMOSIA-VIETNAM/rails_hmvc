@@ -18,11 +18,15 @@ module RailsHmvc
       class_option :parent, type: :string,
                   desc: 'Parent class to inherit from'
 
+      class_option :type, type: :string, desc: 'Project type (api/web)'
+
       def initialize(*args)
         super
+        @config = load_config_for_type(options[:type])
+        @resource_config = get_resource_config('forms')
         @form_attributes = parse_attributes(options[:attributes])
         @form_validations = parse_validations(options[:validations])
-        @parent_class = determine_parent_class
+        set_defaults_from_config
       end
 
       def create_form_file
@@ -33,6 +37,16 @@ module RailsHmvc
       end
 
       private
+
+      def set_defaults_from_config
+        options[:parent] ||= @config['parent_form']
+
+        # Kiểm tra xem có nên skip action này không
+        if @resource_config['skip_actions']&.include?(file_name)
+          say_status :skip, "Skipping form for action #{file_name} (configured in rails_hmvc.yml)", :yellow
+          exit
+        end
+      end
 
       def parse_attributes(attrs)
         attrs.map do |attr|
@@ -92,32 +106,12 @@ module RailsHmvc
         result
       end
 
-      def determine_parent_class
-        options[:parent] || load_config.dig('parent_form') || 'MainForm'
+      def parent_form_class
+        options[:parent] || 'MainForm'
       end
 
       def form_class_name
-        "#{class_name}Form"
-      end
-
-      def namespaced_class_name
-        if class_path.empty?
-          form_class_name
-        else
-          class_parts = class_path.dup
-          # Nếu path là v1/posts/create thì class name sẽ là V1::Posts::CreateForm
-          namespace = class_parts.map(&:camelize)
-          resource_name = namespace.pop # Lấy tên resource (create)
-          "#{namespace.join('::')}::#{resource_name.camelize}Form"
-        end
-      end
-
-      def parent_class_name
-        if @parent_class.include?('::')
-          @parent_class
-        else
-          "::#{@parent_class}"
-        end
+        file_name.camelize
       end
 
       def attribute_definitions

@@ -1,117 +1,146 @@
 module RailsHmvc
   module Generators
     class ResourcesGenerator < Rails::Generators::NamedBase
+      include GeneratorHelpers
+
       source_root File.expand_path('templates', __dir__)
 
-      class_option :version, type: :string, default: 'v1', desc: 'API version'
       class_option :type, type: :string, desc: 'Project type (api/web)'
       class_option :parent_controller, type: :string, desc: 'Parent controller class'
       class_option :parent_operation, type: :string, desc: 'Parent operation class'
       class_option :parent_form, type: :string, desc: 'Parent form class'
       class_option :parent_serializer, type: :string, desc: 'Parent serializer class'
       class_option :skip_routes, type: :boolean, default: false, desc: 'Skip routes generation'
+      class_option :actions, type: :array, desc: 'List of actions to generate'
 
       def initialize(*args)
         super
-        @config = load_config
+        @config = load_config_for_type(options[:type])
+        @controllers_config = get_resource_config('controllers')
+        @operations_config = get_resource_config('operations')
+        @forms_config = get_resource_config('forms')
         set_defaults_from_config
       end
 
       def create_controller
         args = [
-          "#{version}/#{plural_name}",
-          "--actions=index,show,create,update,destroy",
-          "--version=#{version}",
+          name,
+          "--type=#{options[:type]}",
           "--parent=#{parent_controller_class}"
         ]
 
-        Rails::Generators.invoke "rails_hmvc:controller", args, behavior: behavior
+        args << "--actions=#{actions.join(',')}" if actions.any?
+
+        Rails::Generators.invoke "hmvc:controller", args, behavior: behavior
       end
 
       def create_operations
-        %w[index show create update destroy].each do |action|
+        actions.each do |action|
           args = [
-            "#{version}/#{plural_name}/#{action}",
-            "--version=#{version}",
+            "#{namespace_path}/#{plural_name}/#{action}",
+            "--type=#{options[:type]}",
             "--parent=#{parent_operation_class}"
           ]
 
-          if action == 'index'
-            args << "--steps=authorize,load_#{plural_name}"
-          elsif action == 'show'
-            args << "--steps=load_#{singular_name},authorize"
-          elsif action == 'create'
-            args << "--steps=authorize,validate_form,create_#{singular_name}"
-          elsif action == 'update'
-            args << "--steps=load_#{singular_name},authorize,validate_form,update_#{singular_name}"
-          elsif action == 'destroy'
-            args << "--steps=load_#{singular_name},authorize,destroy_#{singular_name}"
-          end
-
-          Rails::Generators.invoke "rails_hmvc:operation", args, behavior: behavior
+          Rails::Generators.invoke "hmvc:operation", args, behavior: behavior
         end
       end
 
       def create_forms
-        %w[create update].each do |action|
+        form_actions = @forms_config['actions'] || %w[create update]
+        skip_actions = @forms_config['skip_actions'] || []
+
+        form_actions.each do |action|
+          next if skip_actions.include?(action)
+          next unless actions.include?(action)
+
           args = [
-            "#{version}/#{plural_name}/#{action}",
+            "#{namespace_path}/#{plural_name}/#{action}",
+            "--type=#{options[:type]}",
             "--parent=#{parent_form_class}"
           ]
 
-          Rails::Generators.invoke "rails_hmvc:form", args, behavior: behavior
+          Rails::Generators.invoke "hmvc:form", args, behavior: behavior
         end
       end
 
       def create_serializer
         args = [
-          "#{version}/#{singular_name}",
-          "--version=#{version}",
+          "#{namespace_path}/#{singular_name}",
+          "--type=#{options[:type]}",
           "--parent=#{parent_serializer_class}"
         ]
 
-        Rails::Generators.invoke "rails_hmvc:serializer", args, behavior: behavior
+        Rails::Generators.invoke "hmvc:serializer", args, behavior: behavior
       end
 
       def add_routes
         return if options[:skip_routes]
 
-        route_config = <<-ROUTE
-  resources :#{plural_name} do
-    collection do
-      get :index
-    end
-    member do
-      get :show
-      post :create
-      put :update
-      delete :destroy
-    end
-  end
-ROUTE
+        route_config = generate_routes
 
-        inject_into_file(
-          'config/routes.rb',
-          route_config,
-          after: "scope module: :#{version}, path: '#{version}' do\n"
-        )
+        path_parts = namespace_path.split('/')
+        if path_parts.empty?
+          inject_into_file(
+            'config/routes.rb',
+            route_config,
+            after: "Rails.application.routes.draw do\n"
+          )
+        else
+          # Tạo scope module nếu cần
+          namespaces = path_parts.map { |p| "scope module: :#{p}, path: '#{p}' do" }
+
+          scope_content = <<~ROUTE
+  #{namespaces.join("\n  ")}
+    #{route_config}
+  #{'end ' * namespaces.size}
+          ROUTE
+
+          inject_into_file(
+            'config/routes.rb',
+            scope_content,
+            after: "Rails.application.routes.draw do\n"
+          )
+        end
       end
 
       private
 
-      def version
-        options[:version]
+      def actions
+        @actions ||= options[:actions] || @controllers_config['actions'] || %w[index show create update destroy]
       end
 
-      def load_config
-        config_file = Rails.root.join('config', 'rails_hmvc.yml')
-        return {} unless File.exist?(config_file)
+      def generate_routes
+        collection_actions = actions.select { |a| ['index', 'create'].include?(a) }
+        member_actions = actions.select { |a| ['show', 'update', 'destroy'].include?(a) }
 
-        YAML.load_file(config_file)[Rails.env] || {}
+        route_parts = []
+        route_parts << "resources :#{plural_name} do"
+
+        if collection_actions.any?
+          route_parts << "  collection do"
+          collection_actions.each do |action|
+            http_method = action == 'index' ? 'get' : 'post'
+            route_parts << "    #{http_method} :#{action}"
+          end
+          route_parts << "  end"
+        end
+
+        if member_actions.any?
+          route_parts << "  member do"
+          member_actions.each do |action|
+            http_method = action == 'show' ? 'get' : action == 'update' ? 'put' : 'delete'
+            route_parts << "    #{http_method} :#{action}"
+          end
+          route_parts << "  end"
+        end
+
+        route_parts << "end"
+        route_parts.join("\n  ")
       end
 
       def set_defaults_from_config
-        options[:type] ||= @config['type']
+        options[:type] ||= @config['type'] || 'api'
         options[:parent_controller] ||= @config['parent_controller']
         options[:parent_operation] ||= @config['parent_operation']
         options[:parent_form] ||= @config['parent_form']
@@ -119,19 +148,19 @@ ROUTE
       end
 
       def parent_controller_class
-        "#{version.camelize}::#{version.upcase}Controller"
+        options[:parent_controller] || "#{namespace_name.split('::').first}Controller"
       end
 
       def parent_operation_class
-        options[:parent_operation] || 'MainOperation'
+        options[:parent_operation] || @config['parent_operation'] || 'MainOperation'
       end
 
       def parent_form_class
-        options[:parent_form] || 'MainForm'
+        options[:parent_form] || @config['parent_form'] || 'MainForm'
       end
 
       def parent_serializer_class
-        options[:parent_serializer] || 'MainSerializer'
+        options[:parent_serializer] || @config['parent_serializer'] || 'MainSerializer'
       end
     end
   end

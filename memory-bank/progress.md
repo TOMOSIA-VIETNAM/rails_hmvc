@@ -63,42 +63,47 @@
 ## Tasks From Change Request 🚀
 
 ### Phase 8: Configuration Enhancement 📐
-- [ ] Task 30: Cải thiện cấu hình môi trường
+- [x] Task 30: Cải thiện cấu hình môi trường
   - Loại bỏ phân chia môi trường, chỉ giữ lại cấu hình cho `development`
   - Cập nhật `GeneratorHelpers.load_config` để không còn phụ thuộc vào Rails.env
   - Cập nhật template rails_hmvc.yml
 
-- [ ] Task 31: Cải thiện cấu hình phiên bản (api & web)
+- [x] Task 31: Cải thiện cấu hình phiên bản (api & web)
   - Cập nhật cấu trúc file YAML để định nghĩa riêng `parent_*` cho mỗi phiên bản
   - Cập nhật generators để sử dụng cấu hình tương ứng với type
   - Đảm bảo tương thích với cấu hình hiện tại
 
-- [ ] Task 32: Loại bỏ `api_version`
+- [x] Task 32: Loại bỏ `api_version`
   - Không còn setting `api_version` trong config
   - Thư mục và namespace được sinh dựa trực tiếp vào `path`
   - Cập nhật tất cả generators để sử dụng path-based namespace
 
 ### Phase 9: Generator Enhancement 🔨
-- [ ] Task 33: Cải thiện Generator resources - Controller
+- [x] Task 33: Cải thiện Generator resources - Controller
   - Cập nhật controller template để thêm comments về HTTP method và route
   - Format comments theo chuẩn `# [METHOD] /path`
   - Đảm bảo các actions rỗng và đúng chuẩn
 
-- [ ] Task 34: Cải thiện Generator resources - Operation & Form
+- [x] Task 34: Cải thiện Generator resources - Operation & Form
   - Cập nhật operation template theo chuẩn mới
   - Cập nhật form template theo chuẩn mới
   - Đảm bảo cấu trúc class và namespace đúng
 
 ### Phase 10: Configuration Structure 🔧
-- [ ] Task 35: Cấu hình resource trong YAML
+- [x] Task 35: Cấu hình resource trong YAML
   - Thêm cấu hình cho controllers, operations, forms
   - Hỗ trợ các options như actions, skip_actions
   - Cập nhật logic để sử dụng cấu hình này
 
-- [ ] Task 36: Cải thiện initializer
+- [x] Task 36: Cải thiện initializer
   - Di chuyển logic load config từ application.rb vào initializer
   - Tạo template cho initializer rails_hmvc.rb
   - Cập nhật init_generator để tạo initializer
+
+## Ongoing Tasks
+- [ ] Task 37: Cập nhật serializer template (nếu cần)
+- [ ] Task 38: Kiểm tra và test lại toàn bộ thay đổi
+- [ ] Task 39: Cập nhật README.md để phản ánh các thay đổi mới
 
 ## Issues to Address
 1. **DRY Templates** - Current generators have duplicate code that needs to be refactored
@@ -112,7 +117,14 @@
 9. **Template Path Management** - Each generator manages its template paths independently
 10. **Environment-specific Configuration** - Current configuration uses Rails.env, need to focus on development only
 11. **Resource Configuration** - Lack of resource-specific configuration in YAML
-13. **Code Comments** - Missing useful comments in generated code
+12. **Code Comments** - Missing useful comments in generated code
+
+## Issues Fixed
+1. ✅ **Environment-specific Configuration** - Đã loại bỏ phân chia môi trường
+2. ✅ **API Version Configuration** - Đã chuyển sang path-based namespace
+3. ✅ **Resource Configuration** - Đã thêm cấu hình resource trong YAML
+4. ✅ **Code Comments** - Đã thêm comments vào code (HTTP method, route)
+5. ✅ **Initialization Process** - Đã chuyển sang sử dụng initializer
 
 ## Source Code Analysis
 
@@ -133,7 +145,6 @@
 7. **Command Interface** - Simplify the command structure for better UX
 
 ## Current Focus
-- Triển khai các cải tiến từ change_request.md
-- Ưu tiên các thay đổi cấu hình (môi trường, phiên bản, api_version)
-- Cải thiện templates và comments trong code được tạo
-- Cập nhật cấu hình resource và initializer
+- Hoàn thiện các cải tiến từ change_request.md
+- Kiểm tra tính tương thích ngược cho các thay đổi đã triển khai
+- Test lại toàn bộ các generators với cấu hình mới

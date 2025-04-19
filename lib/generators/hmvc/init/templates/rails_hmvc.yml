@@ -2,27 +2,47 @@
 # Rails HMVC Configuration
 # ─────────────────────────────────────────────────────────────────────────────
 
-default: &default
-  # Project type: "api" or "web"
-  # Affects templates and generators
-  type: api
+# Project type: "api" or "web"
+# Affects templates and generators
+type: api
 
-  # Default API version
-  api_version: v1
+# Default behavior for adding routes
+skip_routes: false
 
-  # Default behavior for adding routes
-  skip_routes: false
+# ─────────────────────────────────────────────────────────────────────────────
+# Type-specific configuration
+# ─────────────────────────────────────────────────────────────────────────────
 
-  # Parent classes for generated components
+# API Configuration
+api:
+  # Parent classes
   parent_controller: MainController
   parent_operation: MainOperation
   parent_form: MainForm
   parent_serializer: MainSerializer
 
-  api:
-    parent_controller: MainController
-  web:
-    parent_controller: MainController
+  # Component-specific configuration
+  controllers:
+    actions: [index, show, create, update, destroy]
+  operations:
+    actions: [index, show, create, update, destroy]
+  forms:
+    actions: [create, update]
+    skip_actions: []
 
-development:
-  <<: *default
+# Web Configuration
+web:
+  # Parent classes
+  parent_controller: MainController
+  parent_operation: MainOperation
+  parent_form: MainForm
+  parent_serializer: MainSerializer
+
+  # Component-specific configuration
+  controllers:
+    actions: [index, show, create, update, destroy]
+  operations:
+    actions: [index, show, create, update, destroy]
+  forms:
+    actions: [create, update]
+    skip_actions: []

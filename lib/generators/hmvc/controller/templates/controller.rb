@@ -3,6 +3,7 @@
 <% module_namespacing do -%>
 class <%= controller_class_name %> < <%= parent_controller_class %>
 <% actions.each do |action| -%>
+  # [<%= action == "index" ? "GET" : action == "show" ? "GET" : action == "create" ? "POST" : action == "update" ? "PUT" : "DELETE" %>] /<%= namespace_path %>/<%= plural_name %><%= action == "show" || action == "update" || action == "destroy" ? "/:id" : "" %>
   def <%= action %>
 <% unless skip_operations? -%>
     result = <%= operation_class_for(action) %>.call(<%= action == "update" || action == "create" ? "#{action}_params" : "params" %>)
