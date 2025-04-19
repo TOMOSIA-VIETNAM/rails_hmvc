@@ -179,3 +179,18 @@ Nếu gặp lỗi trong quá trình test, vui lòng kiểm tra:
 2. Gem đã được cài đặt đúng cách
 3. Path tới gem trong Gemfile
 4. Quyền truy cập thư mục
+
+## Results test
+
+1. Web sẽ không tạo serializer
+2. Router:
+  - Các indent đang bị tụt ra ngoài
+  - Route chưa gom vào scope
+3. Chưa skip operations
+```
+rails g rails_hmvc:controller v1/categories \
+  --skip-operations \
+  --skip-forms \
+  --actions=index,show \
+  --type=api
+```

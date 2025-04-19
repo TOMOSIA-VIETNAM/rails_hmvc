@@ -64,47 +64,8 @@ module RailsHmvc
           attr, type, options = validation.split(':')
           result[attr] ||= []
 
-          if options&.start_with?('{') && options&.end_with?('}')
-            # Handle hash options like length:{maximum:100}
-            options_content = options[1..-2] # Remove { and }
-            options_parts = []
-
-            # Parse key-value pairs
-            current_part = ""
-            nesting_level = 0
-
-            options_content.each_char.with_index do |char, i|
-              if char == '{'
-                nesting_level += 1
-                current_part += char
-              elsif char == '}'
-                nesting_level -= 1
-                current_part += char
-              elsif char == ',' && nesting_level == 0
-                options_parts << current_part.strip
-                current_part = ""
-              else
-                current_part += char
-              end
-            end
-
-            options_parts << current_part.strip if current_part.strip.length > 0
-
-            # Format options
-            formatted_options = options_parts.map do |opt|
-              if opt.include?(':')
-                key, value = opt.split(':', 2)
-                "#{key}: #{value}"
-              else
-                opt
-              end
-            end.join(', ')
-
-            result[attr] << "#{type}: {#{formatted_options}}"
-          else
-            # Handle simple options like presence:true
-            result[attr] << "#{type}: #{options || true}"
-          end
+          # Handle simple options like presence:true
+          result[attr] << "#{type}: #{options || true}"
         end
         result
       end

@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 
-class <%= namespace_name %>::<%= form_class_name %> < <%= parent_form_class %>
+class <%= namespace_name %>::<%= form_class_name %>Form < <%= parent_form_class %>
 <% if attribute_definitions.present? -%>
-  # Define form attributes
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Attributes
+  # ─────────────────────────────────────────────────────────────────────────────
 <%= attribute_definitions %>
 
-  # Define validations
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Validations
+  # ─────────────────────────────────────────────────────────────────────────────
 <%= validation_definitions %>
 <% end -%>
 end

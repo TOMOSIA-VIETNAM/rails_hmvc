@@ -22,7 +22,7 @@ class <%= controller_class_name %> < <%= parent_controller_class %>
 <% elsif action == "update" -%>
     <%= render_for_action("update") %>
 <% elsif action == "destroy" -%>
-    head :no_content
+    <%= render_for_action("destroy") %>
 <% end -%>
   end
 <% end -%>
