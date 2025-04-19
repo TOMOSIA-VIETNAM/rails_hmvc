@@ -1,0 +1,54 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Rails HMVC Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+
+development:
+  # Project type: "api" or "web"
+  # Affects templates and generators
+  type: api
+
+  # Parent classes for generated components
+  parent_controller: ApplicationController
+  parent_operation: ApplicationOperation
+  parent_form: ApplicationForm
+  parent_serializer: ApplicationSerializer
+
+  # Default behavior for adding routes
+  skip_routes: false
+
+  # Default API version
+  api_version: v1
+
+test:
+  # Project type: "api" or "web"
+  # Affects templates and generators
+  type: api
+
+  # Parent classes for generated components
+  parent_controller: ApplicationController
+  parent_operation: ApplicationOperation
+  parent_form: ApplicationForm
+  parent_serializer: ApplicationSerializer
+
+  # Default behavior for adding routes
+  skip_routes: false
+
+  # Default API version
+  api_version: v1
+
+production:
+  # Project type: "api" or "web"
+  # Affects templates and generators
+  type: api
+
+  # Parent classes for generated components
+  parent_controller: ApplicationController
+  parent_operation: ApplicationOperation
+  parent_form: ApplicationForm
+  parent_serializer: ApplicationSerializer
+
+  # Default behavior for adding routes
+  skip_routes: false
+
+  # Default API version
+  api_version: v1

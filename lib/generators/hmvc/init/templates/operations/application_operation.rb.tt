@@ -1,0 +1,33 @@
+# frozen_string_literal: true
+
+class ApplicationOperation
+  class << self
+    def call(*args)
+      new(*args).call
+    end
+  end
+
+  def initialize(params = {}, context = {})
+    @params = params || {}
+    @context = context || {}
+  end
+
+  def call
+    # Subclasses should override this method
+    raise NotImplementedError, "#{self.class} must implement #call"
+  end
+
+  private
+
+  attr_reader :params, :context
+
+  def validate_with(form_class)
+    form_class.new(params).valid!
+  end
+
+  def authorize(policy_class, action, resource = nil)
+    policy = policy_class.new(context[:current_user], resource)
+    raise UnauthorizedError unless policy.public_send(action)
+    true
+  end
+end

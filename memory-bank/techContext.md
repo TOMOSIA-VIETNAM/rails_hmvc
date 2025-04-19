@@ -2,6 +2,110 @@
 
 *[Outline the technologies, frameworks, and libraries used. Detail the development setup, including environment configurations and required tools. Note any technical constraints or dependencies that impact development.]*
 
+# Technical Context
+
+## Technologies
+
+### Core
+- **Ruby on Rails**: Framework chính, >= 6.1
+- **Ruby**: >= 2.7.0
+- **RSpec**: Testing framework
+- **ActiveModel::Serializers**: Serialization
+- **ERB**: Template engine cho generators
+
+### Architecture
+- **HMVC (Hierarchical MVC)**: Mô hình kiến trúc chính
+- **Template-based Generator**: Không cung cấp runtime components
+- **API-first Design**: Thiết kế hướng API
+
+## Development Environment
+
+### Setup
+- **Bundle**: Quản lý dependencies
+- **RSpec**: Viết tests
+- **Rubocop**: Linting và code style
+- **Example App**: Testing trong thư mục example/
+
+## Gem Structure
+```
+rails_hmvc/
+├── lib/
+│   ├── rails_hmvc.rb                    # Entry point
+│   ├── rails_hmvc/
+│   │   └── version.rb                   # Version management
+│   └── generators/                      # Generators
+│       ├── generator_helpers.rb         # Shared helper methods
+│       └── hmvc/
+│           ├── init/                    # Init generator
+│           ├── form/                    # Form generator
+│           ├── operation/               # Operation generator
+│           ├── controller/              # Controller generator
+│           ├── serializer/              # Serializer generator
+│           └── resources/               # Resources generator
+├── spec/                                # Tests
+├── example/                             # Example Rails app
+└── Gemfile, rails_hmvc.gemspec          # Gem metadata
+```
+
+## How to Use Generators
+
+### Init Generator
+Khởi tạo cấu trúc HMVC cơ bản:
+```bash
+rails g hmvc:init
+```
+
+### Resources Generator
+Tạo đầy đủ các components cho một resource:
+```bash
+rails g hmvc:resources posts
+```
+
+### Form Generator
+Tạo form object với validations:
+```bash
+rails g hmvc:form posts/create --attributes title:string content:text --validations title:presence:true
+```
+
+### Operation Generator
+Tạo operation với custom steps:
+```bash
+rails g hmvc:operation posts/create --steps=validate,create_post,publish
+```
+
+### Controller Generator
+Tạo controller với các actions:
+```bash
+rails g hmvc:controller posts --actions=index,show,create,update,destroy
+```
+
+### Serializer Generator
+Tạo serializer cho model:
+```bash
+rails g hmvc:serializer post --attributes title:string content:text
+```
+
+## Configuration
+
+### rails_hmvc.yml
+```yaml
+development:
+  type: api
+  parent_controller: ApplicationController
+  parent_operation: ApplicationOperation
+  parent_form: ApplicationForm
+  parent_serializer: ApplicationSerializer
+  skip_routes: false
+  api_version: v1
+```
+
+## CLI Options
+Mỗi generator có các CLI options riêng, ví dụ:
+- `--version`: API version (default: v1)
+- `--parent`: Parent class
+- `--attributes`: List of attributes
+- `--validations`: List of validations
+
 # Technical Context: rails_hmvc Gem
 
 ## 1. CLI Commands

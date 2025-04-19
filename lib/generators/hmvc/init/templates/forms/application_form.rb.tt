@@ -1,0 +1,49 @@
+# frozen_string_literal: true
+
+class ApplicationForm
+  include ActiveModel::Model
+  include ActiveModel::Attributes
+  include ActiveModel::Validations
+
+  attr_reader :params
+
+  def initialize(params = {})
+    @params = params.to_h.with_indifferent_access
+    super(permitted_params)
+    transform_attributes
+  end
+
+  def valid!
+    validate_form
+    transform_attributes
+    raise ::Errors::ResourceError.new(resource: self, message: errors.full_messages) unless valid?
+    self
+  end
+
+  def validate_form
+    valid? # Trigger ActiveModel validations
+    custom_validate
+  end
+
+  def attributes
+    super.symbolize_keys
+  end
+
+  private
+
+  def permitted_params
+    params
+  end
+
+  def transform_attributes
+    # Override in subclasses to transform attributes before validation
+  end
+
+  def custom_validate
+    # Override in subclasses to add custom validation logic
+  end
+
+  def to_h
+    attributes.to_h.symbolize_keys
+  end
+end
