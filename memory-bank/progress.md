@@ -60,34 +60,81 @@
   - Added priority order for options
   - Added default values
 
-## Next Tasks
+## Planned Tasks
 
-### Phase 4: Testing 🧪
-- [ ] Task 18: Set up RSpec
+### Phase 4: Gem Enhancement 🔄
+- [ ] Task 18: Simplify CLI commands
+  - Modify namespace from `rails g rails_hmvc` to `rails g hmvc`
+  - Update all documentation references
+  - Ensure backward compatibility through aliases
+
+- [ ] Task 19: Restructure generator templates for DRY code
+  - Refactor templates to use shared, standardized templates
+  - Consolidate duplicate code across generator templates
+  - Create a template helper system for reusable components
+  - Ensure each generator uses the same base templates
+
+- [ ] Task 20: Improve configuration system
+  - Remove environment-specific config (focus on development only)
+  - Add type-specific configuration for api/web in rails_hmvc.yml
+  - Support custom parent classes per project type
+  - Remove api_version setting in favor of path-based namespace generation
+
+- [ ] Task 21: Enhance template content
+  - Add route comments to controller actions
+  - Add docstring comments linking components together (Controller > Operation > Form)
+  - Improve generated code documentation
+  - Standardize naming conventions
+
+- [ ] Task 22: Update initialization process
+  - Move config loading from application.rb to config/initializers
+  - Add proper error handling for missing or invalid config
+  - Implement safer configuration loading
+
+- [ ] Task 23: Implement resources-specific config in rails_hmvc.yml
+  - Add ability to configure default endpoints for resources
+  - Support custom validation requirements per resource type
+  - Allow configuration of which forms/operations to generate per resource
+
+### Phase 5: Testing 🧪
+- [ ] Task 24: Set up comprehensive RSpec test suite
   - Add generator tests
   - Add integration tests
+  - Add configuration tests
 
-### Phase 5: Documentation & Examples 📚
-- [ ] Task 24: Write `README.md`
+- [ ] Task 25: Test all generators with various configurations
+  - Test web vs API configuration
+  - Test custom parent classes
+  - Test custom templates
+
+### Phase 6: Documentation & Examples 📚
+- [ ] Task 26: Create comprehensive documentation
   - Installation guide
   - Usage examples
-  - Generator documentation
+  - Configuration guide
+  - Best practices
 
-- [ ] Task 25: Document all CLI commands
-  - Document all options
-  - Provide usage examples
+- [ ] Task 27: Enhance example Rails application
+  - Expand the example app to showcase all features
+  - Ensure it demonstrates best practices
+  - Include API and Web examples
 
-- [ ] Task 26: Create example Rails application
-  - Create a comprehensive demo
-  - Show integration with Rails
+### Phase 7: Future Extensions 🔮
+- [ ] Task 28: Plan for extension modules
+  - RSpec setup templates
+  - JWT authorization templates
+  - S3 integration templates
+  - Slack notification templates
 
 ## Issues to Address
-1. **Namespace handling** - Ensure proper handling of nested namespaces in form and operation generators
-2. **Integration testing** - Need to verify all generators work together seamlessly
-3. **Error handling** - Improve error messages when generators fail
+1. **DRY Templates** - Current generators have duplicate code that needs to be refactored
+2. **CLI Command Length** - Current commands are verbose and should be shortened
+3. **Configuration Flexibility** - Need to improve type-specific configuration
+4. **Component Docstrings** - Current generated code lacks clear documentation about relationships
+5. **Initialization Process** - Current approach modifies application.rb directly, should use initializers
 
 ## Current Focus
-- Complete integration tests
-- Improve error handling
-- Write comprehensive documentation
-- Create example application to demonstrate usage
+- Refactor generators to follow DRY principles
+- Simplify CLI commands
+- Enhance configuration system
+- Improve generated code documentation

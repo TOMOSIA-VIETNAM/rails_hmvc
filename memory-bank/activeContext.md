@@ -13,14 +13,16 @@
 - **Serializer Generator**: Tạo serializers với attributes và associations
 
 ### Current Work
-- **Testing**: Cần viết tests cho tất cả các generators
+- **Cải tiến Generators**: Đang lên kế hoạch cho việc cải tiến cấu trúc generators và cải thiện DRY code
+- **CLI Improvement**: Thay đổi lệnh CLI từ `rails g rails_hmvc` thành `rails g hmvc`
+- **Configuration Improvement**: Cải thiện cấu hình trong rails_hmvc.yml
 - **Documentation**: Cần viết documentation chi tiết
 - **Example Rails App**: Đã tạo app demo trong thư mục example/
 
 ### Next Steps
-1. Hoàn thiện tests
-2. Viết README.md chi tiết
-3. Thêm examples và screenshots
+1. Triển khai các thay đổi đã lên kế hoạch
+2. Hoàn thiện tests
+3. Viết README.md chi tiết
 4. Chuẩn bị gem để publish
 
 ## Important Decisions
@@ -29,3 +31,9 @@
 2. **Namespace Change**: Đổi namespace từ `Rails::Hmvc` thành `RailsHmvc` để tránh xung đột
 3. **YAML Configuration**: Sử dụng file rails_hmvc.yml để cấu hình generators
 4. **Modular Design**: Thiết kế modular cho phép sử dụng từng generator riêng biệt
+5. **CLI Command Change**: Thay đổi từ `rails g rails_hmvc` thành `rails g hmvc` để cải thiện UX
+6. **DRY Generator Templates**: Cải tiến cấu trúc để tập trung templates, giúp việc bảo trì và cập nhật dễ dàng hơn
+7. **Path-based Generation**: Dựa vào path parameter để tạo cấu trúc thư mục và namespace, loại bỏ setting api_version
+
+## Planned Changes
+Đang lên kế hoạch nhiều cải tiến quan trọng cho gem, xem chi tiết trong file progress.md.
