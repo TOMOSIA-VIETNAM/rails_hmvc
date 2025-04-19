@@ -39,7 +39,10 @@ module RailsHmvc
       private
 
       def set_defaults_from_config
-        options[:parent] ||= @config['parent_form']
+        # Tạo một bản sao của options để tránh lỗi frozen hash
+        @options = options.dup
+
+        @options[:parent] ||= @config['parent_form']
 
         # Kiểm tra xem có nên skip action này không
         if @resource_config['skip_actions']&.include?(file_name)
@@ -107,7 +110,7 @@ module RailsHmvc
       end
 
       def parent_form_class
-        options[:parent] || 'MainForm'
+        @options[:parent] || 'MainForm'
       end
 
       def form_class_name

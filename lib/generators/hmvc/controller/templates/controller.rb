@@ -2,62 +2,29 @@
 
 <% module_namespacing do -%>
 class <%= controller_class_name %> < <%= parent_controller_class %>
-<% actions.each do |action| -%>
-  # [<%= action == "index" ? "GET" : action == "show" ? "GET" : action == "create" ? "POST" : action == "update" ? "PUT" : "DELETE" %>] /<%= namespace_path %>/<%= plural_name %><%= action == "show" || action == "update" || action == "destroy" ? "/:id" : "" %>
+<% actions.each_with_index do |action, index| -%>
+<%= "\n" if index > 0 %>  # <%= action_comment_for(action) %>
   def <%= action %>
 <% unless skip_operations? -%>
-    result = <%= operation_class_for(action) %>.call(<%= action == "update" || action == "create" ? "#{action}_params" : "params" %>)
+    operator = <%= operation_class_for(action) %>.call(params:)
+
 <% end -%>
 <% if action == "index" -%>
-    render_collection(
-      collection: result,
-      serializer: <%= serializer_class %>
-<% if action == "index" -%>
-      meta: pagination_meta(result)
-<% end -%>
-    )
-<% elsif action == "show" || action == "create" || action == "update" -%>
-    render_resource(
-      resource: result,
-      serializer: <%= serializer_class %><% if action == "create" %>,
-      status: :created<% end %>
-    )
+    <%= render_for_action("index") %>
+<% elsif action == "show" -%>
+    <%= render_for_action("show") %>
+<% elsif action == "new" -%>
+    <%= render_for_action("new") %>
+<% elsif action == "edit" -%>
+    <%= render_for_action("edit") %>
+<% elsif action == "create" -%>
+    <%= render_for_action("create") %>
+<% elsif action == "update" -%>
+    <%= render_for_action("update") %>
 <% elsif action == "destroy" -%>
     head :no_content
 <% end -%>
   end
-
-<% end -%>
-<% if actions.include?("create") || actions.include?("update") -%>
-  private
-
-<% if actions.include?("create") -%>
-  def create_params
-<% unless skip_forms? -%>
-    form = <%= form_class_for("create") %>.new(params.require(:<%= singular_name %>).permit!)
-    form.valid!
-    form.attributes
-<% else -%>
-    params.require(:<%= singular_name %>).permit(
-      # Add permitted parameters here
-    )
-<% end -%>
-  end
-<% end -%>
-
-<% if actions.include?("update") -%>
-  def update_params
-<% unless skip_forms? -%>
-    form = <%= form_class_for("update") %>.new(params.require(:<%= singular_name %>).permit!)
-    form.valid!
-    form.attributes
-<% else -%>
-    params.require(:<%= singular_name %>).permit(
-      # Add permitted parameters here
-    )
-<% end -%>
-  end
-<% end -%>
 <% end -%>
 end
 <% end -%>

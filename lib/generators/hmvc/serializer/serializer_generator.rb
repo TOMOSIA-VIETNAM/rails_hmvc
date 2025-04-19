@@ -34,8 +34,10 @@ module RailsHmvc
       private
 
       def set_defaults_from_config
-        options[:parent] ||= @config['parent_serializer']
-        options[:version] ||= @config['api_version'] || 'v1'
+        @options = options.dup
+
+        @options[:parent] ||= @config['parent_serializer']
+        @options[:version] ||= @config['api_version'] || 'v1'
       end
 
       def serializer_path
@@ -65,7 +67,7 @@ module RailsHmvc
       end
 
       def version
-        options[:version].downcase
+        @options[:version].downcase
       end
 
       def version_class
@@ -73,17 +75,17 @@ module RailsHmvc
       end
 
       def parent_serializer_class
-        options[:parent] || 'MainSerializer'
+        @options[:parent] || 'MainSerializer'
       end
 
       def attributes_list
-        ['id', 'created_at', 'updated_at'] + options[:attributes]
+        ['id', 'created_at', 'updated_at'] + @options[:attributes]
       end
 
       def parse_associations
         result = { belongs_to: [], has_many: [], has_one: [] }
 
-        options[:associations].each do |assoc|
+        @options[:associations].each do |assoc|
           type, name = assoc.split(':')
 
           if %w[belongs_to has_many has_one].include?(type) && name.present?

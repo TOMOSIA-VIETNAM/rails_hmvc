@@ -25,11 +25,14 @@ module RailsHmvc
       private
 
       def set_defaults_from_config
-        options[:parent] ||= @config['parent_operation']
+        # Tạo một bản sao của options để tránh lỗi frozen hash
+        @options = options.dup
+
+        @options[:parent] ||= @config['parent_operation']
       end
 
       def parent_operation_class
-        options[:parent] || 'MainOperation'
+        @options[:parent] || 'MainOperation'
       end
 
       def operation_class_name

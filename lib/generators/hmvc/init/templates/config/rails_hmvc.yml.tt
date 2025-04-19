@@ -2,53 +2,47 @@
 # Rails HMVC Configuration
 # ─────────────────────────────────────────────────────────────────────────────
 
-development:
-  # Project type: "api" or "web"
-  # Affects templates and generators
-  type: api
+# Project type: "api" or "web"
+# Affects templates and generators
+type: api
 
-  # Parent classes for generated components
+# Default behavior for adding routes
+skip_routes: false
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Type-specific configuration
+# ─────────────────────────────────────────────────────────────────────────────
+
+# API Configuration
+api:
+  # Parent classes
   parent_controller: MainController
   parent_operation: MainOperation
   parent_form: MainForm
   parent_serializer: MainSerializer
 
-  # Default behavior for adding routes
-  skip_routes: false
+  # Component-specific configuration
+  controllers:
+    actions: ['index', 'show', 'create', 'update', 'destroy']
+  operations:
+    actions: ['index', 'show', 'create', 'update', 'destroy']
+  forms:
+    actions: ['create', 'update']
+    skip_actions: []
 
-  # Default API version
-  api_version: v1
-
-test:
-  # Project type: "api" or "web"
-  # Affects templates and generators
-  type: api
-
-  # Parent classes for generated components
+# Web Configuration
+web:
+  # Parent classes
   parent_controller: MainController
   parent_operation: MainOperation
   parent_form: MainForm
   parent_serializer: MainSerializer
 
-  # Default behavior for adding routes
-  skip_routes: false
-
-  # Default API version
-  api_version: v1
-
-production:
-  # Project type: "api" or "web"
-  # Affects templates and generators
-  type: api
-
-  # Parent classes for generated components
-  parent_controller: MainController
-  parent_operation: MainOperation
-  parent_form: MainForm
-  parent_serializer: MainSerializer
-
-  # Default behavior for adding routes
-  skip_routes: false
-
-  # Default API version
-  api_version: v1
+  # Component-specific configuration
+  controllers:
+    actions: ['index', 'show', 'new', 'edit', 'create', 'update', 'destroy']
+  operations:
+    actions: ['index', 'show', 'new', 'edit', 'create', 'update', 'destroy']
+  forms:
+    actions: ['create', 'update', 'new', 'edit']
+    skip_actions: []

@@ -55,33 +55,38 @@ module RailsHmvc
         class_path.map(&:camelize).join('::')
       end
 
-      def versioned_namespace?
-        class_path.first&.match?(/^v\d+$/)
+      def singular_human_name
+        human_name.singularize
       end
 
-      def resource_namespace?
-        class_path.size > 1
-      end
 
-      def controller_route_for(action, resource_name = nil)
-        resource = resource_name || plural_name
-        path = namespace_path.empty? ? resource : "#{namespace_path}/#{resource}"
+      # def versioned_namespace?
+      #   class_path.first&.match?(/^v\d+$/)
+      # end
 
-        case action.to_s
-        when 'index'
-          "GET /#{path}"
-        when 'show'
-          "GET /#{path}/:id"
-        when 'create'
-          "POST /#{path}"
-        when 'update'
-          "PUT /#{path}/:id"
-        when 'destroy'
-          "DELETE /#{path}/:id"
-        else
-          "#{action.to_s.upcase} /#{path}"
-        end
-      end
+      # def resource_namespace?
+      #   class_path.size > 1
+      # end
+
+      # def controller_route_for(action, resource_name = nil)
+      #   resource = resource_name || plural_name
+      #   path = namespace_path.empty? ? resource : "#{namespace_path}/#{resource}"
+
+      #   case action.to_s
+      #   when 'index'
+      #     "[GET] /#{path}"
+      #   when 'show'
+      #     "[GET] /#{path}/:id"
+      #   when 'create'
+      #     "[POST] /#{path}"
+      #   when 'update'
+      #     "[PUT] /#{path}/:id"
+      #   when 'destroy'
+      #     "[DELETE] /#{path}/:id"
+      #   else
+      #     "[#{action.to_s.upcase}] /#{path}"
+      #   end
+      # end
     end
   end
 end

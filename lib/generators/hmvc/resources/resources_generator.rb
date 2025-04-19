@@ -31,7 +31,7 @@ module RailsHmvc
 
         args << "--actions=#{actions.join(',')}" if actions.any?
 
-        Rails::Generators.invoke "hmvc:controller", args, behavior: behavior
+        Rails::Generators.invoke "rails_hmvc:controller", args, behavior: behavior
       end
 
       def create_operations
@@ -42,7 +42,7 @@ module RailsHmvc
             "--parent=#{parent_operation_class}"
           ]
 
-          Rails::Generators.invoke "hmvc:operation", args, behavior: behavior
+          Rails::Generators.invoke "rails_hmvc:operation", args, behavior: behavior
         end
       end
 
@@ -60,7 +60,7 @@ module RailsHmvc
             "--parent=#{parent_form_class}"
           ]
 
-          Rails::Generators.invoke "hmvc:form", args, behavior: behavior
+          Rails::Generators.invoke "rails_hmvc:form", args, behavior: behavior
         end
       end
 
@@ -71,7 +71,7 @@ module RailsHmvc
           "--parent=#{parent_serializer_class}"
         ]
 
-        Rails::Generators.invoke "hmvc:serializer", args, behavior: behavior
+        Rails::Generators.invoke "rails_hmvc:serializer", args, behavior: behavior
       end
 
       def add_routes
@@ -140,27 +140,30 @@ module RailsHmvc
       end
 
       def set_defaults_from_config
-        options[:type] ||= @config['type'] || 'api'
-        options[:parent_controller] ||= @config['parent_controller']
-        options[:parent_operation] ||= @config['parent_operation']
-        options[:parent_form] ||= @config['parent_form']
-        options[:parent_serializer] ||= @config['parent_serializer']
+        # Tạo một bản sao của options để tránh lỗi frozen hash
+        @options = options.dup
+
+        @options[:type] ||= @config['type'] || 'api'
+        @options[:parent_controller] ||= @config['parent_controller']
+        @options[:parent_operation] ||= @config['parent_operation']
+        @options[:parent_form] ||= @config['parent_form']
+        @options[:parent_serializer] ||= @config['parent_serializer']
       end
 
       def parent_controller_class
-        options[:parent_controller] || "#{namespace_name.split('::').first}Controller"
+        @options[:parent_controller] || "#{namespace_name.split('::').first}Controller"
       end
 
       def parent_operation_class
-        options[:parent_operation] || @config['parent_operation'] || 'MainOperation'
+        @options[:parent_operation] || @config['parent_operation'] || 'MainOperation'
       end
 
       def parent_form_class
-        options[:parent_form] || @config['parent_form'] || 'MainForm'
+        @options[:parent_form] || @config['parent_form'] || 'MainForm'
       end
 
       def parent_serializer_class
-        options[:parent_serializer] || @config['parent_serializer'] || 'MainSerializer'
+        @options[:parent_serializer] || @config['parent_serializer'] || 'MainSerializer'
       end
     end
   end
