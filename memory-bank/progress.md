@@ -60,71 +60,45 @@
   - Added priority order for options
   - Added default values
 
-## Planned Tasks
+## Tasks From Change Request 🚀
 
-### Phase 4: Gem Enhancement 🔄
-- [ ] Task 18: Simplify CLI commands
-  - Modify namespace from `rails g rails_hmvc` to `rails g hmvc`
-  - Update all documentation references
-  - Ensure backward compatibility through aliases
+### Phase 8: Configuration Enhancement 📐
+- [ ] Task 30: Cải thiện cấu hình môi trường
+  - Loại bỏ phân chia môi trường, chỉ giữ lại cấu hình cho `development`
+  - Cập nhật `GeneratorHelpers.load_config` để không còn phụ thuộc vào Rails.env
+  - Cập nhật template rails_hmvc.yml
 
-- [ ] Task 19: Restructure generator templates for DRY code
-  - Refactor templates to use shared, standardized templates
-  - Consolidate duplicate code across generator templates
-  - Create a template helper system for reusable components
-  - Ensure each generator uses the same base templates
+- [ ] Task 31: Cải thiện cấu hình phiên bản (api & web)
+  - Cập nhật cấu trúc file YAML để định nghĩa riêng `parent_*` cho mỗi phiên bản
+  - Cập nhật generators để sử dụng cấu hình tương ứng với type
+  - Đảm bảo tương thích với cấu hình hiện tại
 
-- [ ] Task 20: Improve configuration system
-  - Remove environment-specific config (focus on development only)
-  - Add type-specific configuration for api/web in rails_hmvc.yml
-  - Support custom parent classes per project type
-  - Remove api_version setting in favor of path-based namespace generation
+- [ ] Task 32: Loại bỏ `api_version`
+  - Không còn setting `api_version` trong config
+  - Thư mục và namespace được sinh dựa trực tiếp vào `path`
+  - Cập nhật tất cả generators để sử dụng path-based namespace
 
-- [ ] Task 21: Enhance template content
-  - Add route comments to controller actions
-  - Add docstring comments linking components together (Controller > Operation > Form)
-  - Improve generated code documentation
-  - Standardize naming conventions
+### Phase 9: Generator Enhancement 🔨
+- [ ] Task 33: Cải thiện Generator resources - Controller
+  - Cập nhật controller template để thêm comments về HTTP method và route
+  - Format comments theo chuẩn `# [METHOD] /path`
+  - Đảm bảo các actions rỗng và đúng chuẩn
 
-- [ ] Task 22: Update initialization process
-  - Move config loading from application.rb to config/initializers
-  - Add proper error handling for missing or invalid config
-  - Implement safer configuration loading
+- [ ] Task 34: Cải thiện Generator resources - Operation & Form
+  - Cập nhật operation template theo chuẩn mới
+  - Cập nhật form template theo chuẩn mới
+  - Đảm bảo cấu trúc class và namespace đúng
 
-- [ ] Task 23: Implement resources-specific config in rails_hmvc.yml
-  - Add ability to configure default endpoints for resources
-  - Support custom validation requirements per resource type
-  - Allow configuration of which forms/operations to generate per resource
+### Phase 10: Configuration Structure 🔧
+- [ ] Task 35: Cấu hình resource trong YAML
+  - Thêm cấu hình cho controllers, operations, forms
+  - Hỗ trợ các options như actions, skip_actions
+  - Cập nhật logic để sử dụng cấu hình này
 
-### Phase 5: Testing 🧪
-- [ ] Task 24: Set up comprehensive RSpec test suite
-  - Add generator tests
-  - Add integration tests
-  - Add configuration tests
-
-- [ ] Task 25: Test all generators with various configurations
-  - Test web vs API configuration
-  - Test custom parent classes
-  - Test custom templates
-
-### Phase 6: Documentation & Examples 📚
-- [ ] Task 26: Create comprehensive documentation
-  - Installation guide
-  - Usage examples
-  - Configuration guide
-  - Best practices
-
-- [ ] Task 27: Enhance example Rails application
-  - Expand the example app to showcase all features
-  - Ensure it demonstrates best practices
-  - Include API and Web examples
-
-### Phase 7: Future Extensions 🔮
-- [ ] Task 28: Plan for extension modules
-  - RSpec setup templates
-  - JWT authorization templates
-  - S3 integration templates
-  - Slack notification templates
+- [ ] Task 36: Cải thiện initializer
+  - Di chuyển logic load config từ application.rb vào initializer
+  - Tạo template cho initializer rails_hmvc.rb
+  - Cập nhật init_generator để tạo initializer
 
 ## Issues to Address
 1. **DRY Templates** - Current generators have duplicate code that needs to be refactored
@@ -132,9 +106,34 @@
 3. **Configuration Flexibility** - Need to improve type-specific configuration
 4. **Component Docstrings** - Current generated code lacks clear documentation about relationships
 5. **Initialization Process** - Current approach modifies application.rb directly, should use initializers
+6. **Template Inconsistency** - Templates across different generators have inconsistent styles and structures
+7. **Error Handling Improvement** - Error handling in generated code could be more robust
+8. **Generator Helper Methods** - Several helper methods are duplicated across generators
+9. **Template Path Management** - Each generator manages its template paths independently
+10. **Environment-specific Configuration** - Current configuration uses Rails.env, need to focus on development only
+11. **Resource Configuration** - Lack of resource-specific configuration in YAML
+13. **Code Comments** - Missing useful comments in generated code
+
+## Source Code Analysis
+
+### Strengths
+1. **Modular Structure** - Each generator is separated into its own class
+2. **Template-based Approach** - All code generation uses template files, making it easy to modify
+3. **Generator Helpers** - There is a shared module for common functionality
+4. **Configuration System** - YAML-based configuration with environment support
+5. **Complete HMVC Pattern** - All components of HMVC pattern are properly implemented
+
+### Areas for Improvement
+1. **Template Management** - Create a centralized template system for all generators
+2. **Helper Methods** - Move more common functionality to GeneratorHelpers module
+3. **Configuration Logic** - Simplify configuration handling and caching
+4. **Code Generation** - Improve the quality and consistency of generated code
+5. **Documentation** - Add more inline documentation to explain complex parts
+6. **Testing** - Implement comprehensive tests for all generators
+7. **Command Interface** - Simplify the command structure for better UX
 
 ## Current Focus
-- Refactor generators to follow DRY principles
-- Simplify CLI commands
-- Enhance configuration system
-- Improve generated code documentation
+- Triển khai các cải tiến từ change_request.md
+- Ưu tiên các thay đổi cấu hình (môi trường, phiên bản, api_version)
+- Cải thiện templates và comments trong code được tạo
+- Cập nhật cấu hình resource và initializer

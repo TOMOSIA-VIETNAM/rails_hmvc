@@ -19,6 +19,17 @@
 - **Documentation**: Cần viết documentation chi tiết
 - **Example Rails App**: Đã tạo app demo trong thư mục example/
 
+### Code Structure
+- **Main Module**: RailsHmvc module là entry point chính của gem
+- **Generators Module**: Chứa tất cả các generators, mỗi generator là một class riêng
+- **Templates Directory**: Mỗi generator có một thư mục templates riêng
+- **Generator Helpers**: Module `GeneratorHelpers` chứa các helper methods được dùng chung
+
+### Generator Workflow
+1. **Init Generator**: Tạo cấu trúc ban đầu và các base classes
+2. **Resource Generator**: Tạo đầy đủ các components cho một resource, gọi các generator con
+3. **Individual Generators**: Controller, Operation, Form, Serializer có thể được gọi riêng lẻ
+
 ### Next Steps
 1. Triển khai các thay đổi đã lên kế hoạch
 2. Hoàn thiện tests
@@ -37,3 +48,66 @@
 
 ## Planned Changes
 Đang lên kế hoạch nhiều cải tiến quan trọng cho gem, xem chi tiết trong file progress.md.
+
+## Technical Observations
+1. **Generator Structure**: Mỗi generator hiện tại có cấu trúc riêng, có thể được cải thiện để DRY hơn
+2. **Template Management**: Templates được lưu trong từng thư mục generator, có thể được tập trung để dễ dàng bảo trì
+3. **Configuration Logic**: Logic đọc cấu hình từ YAML đã được viết trong `GeneratorHelpers` module
+4. **CLI Interface**: Cấu trúc lệnh CLI hiện tại hơi phức tạp, cần được đơn giản hóa
+5. **Error Handling**: Đã có các templates cho error handling, cần cải thiện tính nhất quán
+
+## Current Enhancement Tasks
+
+Dựa trên yêu cầu cải thiện tính năng trong `change_request.md`, sau đây là các tasks cụ thể cần thực hiện:
+
+### 1. Cải thiện cấu hình môi trường
+- [ ] **Task 1.1**: Loại bỏ phân chia môi trường, chỉ giữ lại cấu hình cho `development`
+- [ ] **Task 1.2**: Cập nhật `GeneratorHelpers.load_config` để không còn phụ thuộc vào Rails.env
+- [ ] **Task 1.3**: Cập nhật template rails_hmvc.yml để loại bỏ cấu trúc môi trường
+
+### 2. Cải thiện cấu hình phiên bản (api & web)
+- [ ] **Task 2.1**: Cập nhật template rails_hmvc.yml để phân chia cấu hình theo type (api/web)
+- [ ] **Task 2.2**: Cập nhật `GeneratorHelpers` để đọc cấu hình theo type
+- [ ] **Task 2.3**: Cập nhật tất cả generators để sử dụng cấu hình theo type
+
+### 3. Loại bỏ `api_version`
+- [ ] **Task 3.1**: Cập nhật template rails_hmvc.yml để loại bỏ setting api_version
+- [ ] **Task 3.2**: Cập nhật `GeneratorHelpers` để xử lý path-based namespace generation
+- [ ] **Task 3.3**: Cập nhật tất cả generators để sử dụng path-based namespace
+
+### 4. Cải thiện Generator resources
+- [ ] **Task 4.1**: Cập nhật controller template để thêm comments về HTTP method và route
+- [ ] **Task 4.2**: Cập nhật operation template theo chuẩn mới
+- [ ] **Task 4.3**: Cập nhật form template theo chuẩn mới
+- [ ] **Task 4.4**: Cập nhật serializer template (nếu cần)
+
+### 5. Cấu hình resource trong YAML
+- [ ] **Task 5.1**: Cập nhật template rails_hmvc.yml để thêm cấu hình cho controllers, operations, forms
+- [ ] **Task 5.2**: Cập nhật `GeneratorHelpers` để đọc và xử lý cấu hình resource
+- [ ] **Task 5.3**: Cập nhật generator resources để sử dụng cấu hình resource
+
+### 6. Cải thiện initializer
+- [ ] **Task 6.1**: Tạo template cho initializer rails_hmvc.rb
+- [ ] **Task 6.2**: Cập nhật init_generator để tạo initializer thay vì sửa application.rb
+- [ ] **Task 6.3**: Cập nhật logic load config trong initializer
+
+### 7. Thêm comments
+- [ ] **Task 7.1**: Cập nhật controller template để thêm comments HTTP method và route
+- [ ] **Task 7.2**: Đảm bảo comments được thêm vào đúng định dạng
+
+## Implementation Strategy
+
+1. **Thứ tự thực hiện**:
+   - Bắt đầu với các thay đổi cấu hình (Tasks 1, 2, 3)
+   - Tiếp theo là cải thiện templates (Tasks 4, 7)
+   - Cuối cùng là cấu hình resource và initializer (Tasks 5, 6)
+
+2. **Độ ưu tiên**:
+   - Cao: Tasks 1, 3, 6 (thay đổi cơ bản về cấu hình và khởi tạo)
+   - Trung bình: Tasks 2, 4, 7 (cải thiện templates và comments)
+   - Thấp: Task 5 (cấu hình resource trong YAML)
+
+3. **Rủi ro**:
+   - Việc thay đổi cấu trúc cấu hình có thể ảnh hưởng đến generators hiện tại
+   - Thay đổi path-based namespace generation có thể ảnh hưởng đến các dự án đang sử dụng gem
+   - Cần đảm bảo khả năng tương thích ngược
