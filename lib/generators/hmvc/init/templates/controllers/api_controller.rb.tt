@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 module V1
-  class V1Controller < ApplicationController
-    # Add V1-specific controller functionality here
+  class ApiController < MainController
     before_action :set_default_format
 
     private
