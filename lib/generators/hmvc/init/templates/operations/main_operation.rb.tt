@@ -7,9 +7,9 @@ class MainOperation
     end
   end
 
-  def initialize(params = {}, context = {})
+  def initialize(params = {})
     @params = params || {}
-    @context = context || {}
+    @current_user = params[:current_user]
   end
 
   def call
@@ -19,15 +19,10 @@ class MainOperation
 
   private
 
-  attr_reader :params, :context
+  attr_reader :params, :current_user, :form
 
-  def validate_with(form_class)
-    form_class.new(params).valid!
-  end
-
-  def authorize(policy_class, action, resource = nil)
-    policy = policy_class.new(context[:current_user], resource)
-    raise UnauthorizedError unless policy.public_send(action)
-    true
+  def validate_with!(form_class, attributes)
+    @form = form_class.new(attributes)
+    @form.valid!
   end
 end

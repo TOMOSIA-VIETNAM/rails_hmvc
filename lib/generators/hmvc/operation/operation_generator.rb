@@ -25,9 +25,7 @@ module RailsHmvc
       private
 
       def set_defaults_from_config
-        # Tạo một bản sao của options để tránh lỗi frozen hash
         @options = options.dup
-
         @options[:parent] ||= @config['parent_operation']
       end
 

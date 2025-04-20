@@ -12,10 +12,8 @@ module RailsHmvc
       class_option :actions, type: :string, desc: 'List of controller actions to include'
       class_option :parent, type: :string, desc: 'Parent controller class'
       class_option :type, type: :string, desc: 'Project type (api/web)'
-      class_option :skip_operations, type: :boolean, default: false,
-                  desc: 'Skip associating with operations'
-      class_option :skip_forms, type: :boolean, default: false,
-                  desc: 'Skip associating with forms'
+      class_option :skip_operations, type: :boolean, default: false, desc: 'Skip associating with operations'
+      class_option :skip_forms, type: :boolean, default: false, desc: 'Skip associating with forms'
 
       def initialize(*args)
         super
@@ -73,7 +71,6 @@ module RailsHmvc
       end
 
       def form_class_for(action)
-        # return nil unless %w[create update].include?(action)
         "#{resource_class}::#{action.camelize}Form"
       end
 

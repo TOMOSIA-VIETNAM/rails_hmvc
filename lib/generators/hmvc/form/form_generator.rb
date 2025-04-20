@@ -39,12 +39,10 @@ module RailsHmvc
       private
 
       def set_defaults_from_config
-        # Tạo một bản sao của options để tránh lỗi frozen hash
         @options = options.dup
-
         @options[:parent] ||= @config['parent_form']
 
-        # Kiểm tra xem có nên skip action này không
+        # Check if we should skip this action
         if @resource_config['skip_actions']&.include?(file_name)
           say_status :skip, "Skipping form for action #{file_name} (configured in rails_hmvc.yml)", :yellow
           exit
@@ -79,15 +77,23 @@ module RailsHmvc
       end
 
       def attribute_definitions
-        @form_attributes.map do |attr|
-          "  attribute :#{attr[:name]}, :#{attr[:type]}"
-        end.join("\n")
+        if @form_attributes.any?
+          @form_attributes.map do |attr|
+            "  attribute :#{attr[:name]}, :#{attr[:type]}"
+          end.join("\n")
+        else
+          '  # attribute :name, :string'
+        end
       end
 
       def validation_definitions
-        @form_validations.map do |attr, validations|
-          "  validates :#{attr}, #{validations.join(', ')}"
-        end.join("\n")
+        if @form_validations.any?
+          @form_validations.map do |attr, validations|
+            "  validates :#{attr}, #{validations.join(', ')}"
+          end.join("\n")
+        else
+          '  # validates :name, presence: true'
+        end
       end
     end
   end

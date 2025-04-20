@@ -9,13 +9,13 @@ module RailsHmvc
         config_path = File.join(destination_root, 'config/rails_hmvc.yml')
         return {} unless File.exist?(config_path)
 
-        # Đọc file và xử lý thủ công nếu có lỗi với aliases
+        # Read file and handle manually if there is an error with aliases
         begin
-          # Thử đọc với aliases: true (Rails 7+)
+          # Try reading with aliases: true (Rails 7+)
           yaml_content = File.read(config_path)
           config = YAML.safe_load(yaml_content, aliases: true) rescue nil
 
-          # Nếu lỗi, thử đọc không có aliases (Psych 4+)
+          # If error, try reading without aliases (Psych 4+)
           if config.nil?
             config = YAML.safe_load(yaml_content) rescue {}
           end
@@ -31,12 +31,8 @@ module RailsHmvc
         config = load_config
         type ||= config['type'] || 'api'
 
-        # Lấy cấu hình chung
         base_config = config.reject { |k, _| ['api', 'web'].include?(k) }
-
-        # Lấy cấu hình theo type và merge với cấu hình chung
         type_config = config[type.to_s] || {}
-
         base_config.merge(type_config)
       end
 
@@ -58,35 +54,6 @@ module RailsHmvc
       def singular_human_name
         human_name.singularize
       end
-
-
-      # def versioned_namespace?
-      #   class_path.first&.match?(/^v\d+$/)
-      # end
-
-      # def resource_namespace?
-      #   class_path.size > 1
-      # end
-
-      # def controller_route_for(action, resource_name = nil)
-      #   resource = resource_name || plural_name
-      #   path = namespace_path.empty? ? resource : "#{namespace_path}/#{resource}"
-
-      #   case action.to_s
-      #   when 'index'
-      #     "[GET] /#{path}"
-      #   when 'show'
-      #     "[GET] /#{path}/:id"
-      #   when 'create'
-      #     "[POST] /#{path}"
-      #   when 'update'
-      #     "[PUT] /#{path}/:id"
-      #   when 'destroy'
-      #     "[DELETE] /#{path}/:id"
-      #   else
-      #     "[#{action.to_s.upcase}] /#{path}"
-      #   end
-      # end
     end
   end
 end
