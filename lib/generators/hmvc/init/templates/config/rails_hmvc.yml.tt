@@ -6,9 +6,6 @@
 # Affects templates and generators
 type: api
 
-# Default behavior for adding routes
-skip_routes: false
-
 # ─────────────────────────────────────────────────────────────────────────────
 # API configuration
 # ─────────────────────────────────────────────────────────────────────────────
@@ -17,7 +14,6 @@ api:
   parent_controller: MainController
   parent_operation: MainOperation
   parent_form: MainForm
-  parent_serializer: MainSerializer
 
   # Component-specific configuration
   controllers:
@@ -35,7 +31,6 @@ web:
   parent_controller: MainController
   parent_operation: MainOperation
   parent_form: MainForm
-  parent_serializer: MainSerializer
 
   # Component-specific configuration
   controllers:
