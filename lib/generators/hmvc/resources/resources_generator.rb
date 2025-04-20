@@ -9,8 +9,6 @@ module RailsHmvc
       class_option :parent_controller, type: :string, desc: 'Parent controller class'
       class_option :parent_operation, type: :string, desc: 'Parent operation class'
       class_option :parent_form, type: :string, desc: 'Parent form class'
-      class_option :parent_serializer, type: :string, desc: 'Parent serializer class'
-      class_option :skip_routes, type: :boolean, default: false, desc: 'Skip routes generation'
       class_option :actions, type: :array, desc: 'List of actions to generate'
 
       def initialize(*args)
@@ -64,90 +62,19 @@ module RailsHmvc
         end
       end
 
-      def create_serializer
-        args = [
-          "#{namespace_path}/#{singular_name}",
-          "--type=#{options[:type]}",
-          "--parent=#{parent_serializer_class}"
-        ]
-
-        Rails::Generators.invoke "rails_hmvc:serializer", args, behavior: behavior
-      end
-
-      def add_routes
-        return if options[:skip_routes]
-
-        route_config = generate_routes
-
-        path_parts = namespace_path.split('/')
-        if path_parts.empty?
-          inject_into_file(
-            'config/routes.rb',
-            route_config,
-            after: "Rails.application.routes.draw do\n"
-          )
-        else
-          # Tạo scope module nếu cần
-          namespaces = path_parts.map { |p| "scope module: :#{p}, path: '#{p}' do" }
-
-          scope_content = <<~ROUTE
-  #{namespaces.join("\n  ")}
-    #{route_config}
-  #{'end ' * namespaces.size}
-          ROUTE
-
-          inject_into_file(
-            'config/routes.rb',
-            scope_content,
-            after: "Rails.application.routes.draw do\n"
-          )
-        end
-      end
-
       private
 
       def actions
         @actions ||= options[:actions] || @controllers_config['actions'] || %w[index show create update destroy]
       end
 
-      def generate_routes
-        collection_actions = actions.select { |a| ['index', 'create'].include?(a) }
-        member_actions = actions.select { |a| ['show', 'update', 'destroy'].include?(a) }
-
-        route_parts = []
-        route_parts << "resources :#{plural_name} do"
-
-        if collection_actions.any?
-          route_parts << "  collection do"
-          collection_actions.each do |action|
-            http_method = action == 'index' ? 'get' : 'post'
-            route_parts << "    #{http_method} :#{action}"
-          end
-          route_parts << "  end"
-        end
-
-        if member_actions.any?
-          route_parts << "  member do"
-          member_actions.each do |action|
-            http_method = action == 'show' ? 'get' : action == 'update' ? 'put' : 'delete'
-            route_parts << "    #{http_method} :#{action}"
-          end
-          route_parts << "  end"
-        end
-
-        route_parts << "end"
-        route_parts.join("\n  ")
-      end
-
       def set_defaults_from_config
-        # Tạo một bản sao của options để tránh lỗi frozen hash
         @options = options.dup
 
         @options[:type] ||= @config['type'] || 'api'
         @options[:parent_controller] ||= @config['parent_controller']
         @options[:parent_operation] ||= @config['parent_operation']
         @options[:parent_form] ||= @config['parent_form']
-        @options[:parent_serializer] ||= @config['parent_serializer']
       end
 
       def parent_controller_class
@@ -160,10 +87,6 @@ module RailsHmvc
 
       def parent_form_class
         @options[:parent_form] || @config['parent_form'] || 'MainForm'
-      end
-
-      def parent_serializer_class
-        @options[:parent_serializer] || @config['parent_serializer'] || 'MainSerializer'
       end
     end
   end

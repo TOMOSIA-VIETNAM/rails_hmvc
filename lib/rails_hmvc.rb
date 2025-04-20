@@ -16,7 +16,6 @@ module RailsHmvc
       require_relative "generators/hmvc/operation/operation_generator"
       require_relative "generators/hmvc/resources/resources_generator"
       require_relative "generators/hmvc/controller/controller_generator"
-      require_relative "generators/hmvc/serializer/serializer_generator"
     end
   end if defined?(Rails::Railtie)
 end

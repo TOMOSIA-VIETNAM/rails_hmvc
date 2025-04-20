@@ -10,12 +10,10 @@ type: api
 skip_routes: false
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Type-specific configuration
+# API configuration
 # ─────────────────────────────────────────────────────────────────────────────
 
-# API Configuration
 api:
-  # Parent classes
   parent_controller: MainController
   parent_operation: MainOperation
   parent_form: MainForm
@@ -28,11 +26,12 @@ api:
     actions: ['index', 'show', 'create', 'update', 'destroy']
   forms:
     actions: ['create', 'update']
-    skip_actions: []
 
-# Web Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+# WEB configuration
+# ─────────────────────────────────────────────────────────────────────────────
+
 web:
-  # Parent classes
   parent_controller: MainController
   parent_operation: MainOperation
   parent_form: MainForm
@@ -45,4 +44,3 @@ web:
     actions: ['index', 'show', 'new', 'edit', 'create', 'update', 'destroy']
   forms:
     actions: ['create', 'update', 'new', 'edit']
-    skip_actions: []

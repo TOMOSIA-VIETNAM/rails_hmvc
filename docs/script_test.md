@@ -4,13 +4,13 @@
 
 ```bash
 # 1. Xóa thư mục example cũ và tạo mới Rails app
-rm -rf example && rails new example --api --skip-git --skip-javascript && cd example
+rm -rf example && rails new example --api --skip-git --skip-javascript
 
 # 2. Thêm rails_hmvc gem và cài đặt dependencies
-bundle add rails_hmvc --path ".." && bundle install --path vendor/bundle
+cd example && bundle add rails_hmvc --path ".." && bundle install --path vendor/bundle
 
 # 3. Kiểm tra gem đã được cài đặt và có các generators
-bundle info rails_hmvc && bundle exec rails g | grep rails_hmvc
+bundle info rails_hmvc
 
 # 4. Khởi tạo HMVC structure
 rails g rails_hmvc:init --force --no-stdin

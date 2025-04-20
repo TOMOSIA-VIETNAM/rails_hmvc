@@ -12,10 +12,8 @@ module RailsHmvc
       class_option :actions, type: :string, desc: 'List of controller actions to include'
       class_option :parent, type: :string, desc: 'Parent controller class'
       class_option :type, type: :string, desc: 'Project type (api/web)'
-      class_option :skip_operations, type: :boolean, default: false,
-                  desc: 'Skip associating with operations'
-      class_option :skip_forms, type: :boolean, default: false,
-                  desc: 'Skip associating with forms'
+      class_option :skip_operations, type: :boolean, default: false, desc: 'Skip associating with operations'
+      class_option :skip_forms, type: :boolean, default: false, desc: 'Skip associating with forms'
 
       def initialize(*args)
         super
@@ -57,7 +55,9 @@ module RailsHmvc
       end
 
       def actions
-        @options[:actions].split(',')
+        return @options[:actions].split(',') if @options[:actions].is_a?(String)
+
+        @options[:actions]
       end
 
       def skip_operations?
@@ -73,19 +73,14 @@ module RailsHmvc
       end
 
       def form_class_for(action)
-        # return nil unless %w[create update].include?(action)
         "#{resource_class}::#{action.camelize}Form"
-      end
-
-      def serializer_class
-        "#{resource_class}Serializer"
       end
 
       def http_method_for(action)
         case action
         when 'index', 'show', 'new', 'edit' then 'GET'
         when 'create' then 'POST'
-        when 'update' then 'PATCH/PUT'
+        when 'update' then 'PUT'
         when 'destroy' then 'DELETE'
         end
       end
@@ -109,31 +104,25 @@ module RailsHmvc
       end
 
       def render_api_response(action)
+        return "head :no_content" if skip_operations?
+
         case action
         when 'index'
           "render_collection(\n" \
-          "      collection: operator, # TODO: Change to the result.\n" \
-          "      serializer: #{serializer_class},\n" \
-          "      meta: pagination_meta(operator) # TODO: Change to the result.\n" \
+          "      collection: [],\n" \
+          "      serializer: '',\n" \
+          "      meta: pagination_meta([])\n" \
           "    )"
         when 'show', 'create', 'update'
           status = action == 'create' ? ':created' : ':ok'
           "render_resource(\n" \
-          "      resource: operator, # TODO: Change to the result.\n" \
-          "      serializer: #{serializer_class},\n" \
+          "      resource: nil,\n" \
+          "      serializer: '',\n" \
           "      status: #{status}\n" \
           "    )"
         else
           "head :no_content"
         end
-      end
-
-      def path_verb_for(_action)
-        "#{namespace_path}_#{singular_name}_path(operator)"
-      end
-
-      def url_verb_for(_action)
-        "#{namespace_path}_#{singular_name}_url(operator)"
       end
 
       def render_web_response(action)
@@ -147,23 +136,26 @@ module RailsHmvc
         when 'edit'
           "render :edit"
         when 'create'
+          return "head :no_content" if skip_operations?
+
           "if operator.success?\n" \
-          "      # TODO: Change to the URL resource path.\n" \
-          "      redirect_to #{path_verb_for('create')}, notice: '#{singular_human_name} was successfully created.'\n" \
+          "      redirect_to '#', notice: '#{singular_human_name} was successfully created.'\n" \
           "    else\n" \
           "      render :new, alert: '#{human_name} could not be created.'\n" \
           "    end"
         when 'update'
+          return "head :no_content" if skip_operations?
+
           "if operator.success?\n" \
-          "      # TODO: Change to the URL resource path.\n" \
-          "      redirect_to #{path_verb_for('update')}, notice: '#{singular_human_name} was successfully updated.'\n" \
+          "      redirect_to '#', notice: '#{singular_human_name} was successfully updated.'\n" \
           "    else\n" \
           "      render :edit, alert: '#{singular_human_name} could not be updated.'\n" \
           "    end"
         when 'destroy'
+          return "head :no_content" if skip_operations?
+
           "if operator.success?\n" \
-          "      # TODO: Change to the URL resource path.\n" \
-          "      redirect_to #{url_verb_for('index')}\n" \
+          "      redirect_to '#'\n" \
           "    else\n" \
           "      render :index, alert: '#{human_name} could not be destroyed.'\n" \
           "    end"

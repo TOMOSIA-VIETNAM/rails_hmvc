@@ -1,15 +1,19 @@
 # frozen_string_literal: true
 
 class MainOperation
+  attr_reader :params, :current_user, :form
+
   class << self
     def call(*args)
-      new(*args).call
+      itself = new(*args)
+      itself.call
+      itself
     end
   end
 
-  def initialize(params = {}, context = {})
-    @params = params || {}
-    @context = context || {}
+  def initialize(params:)
+    @params       = params || {}
+    @current_user = params[:current_user]
   end
 
   def call
@@ -19,15 +23,8 @@ class MainOperation
 
   private
 
-  attr_reader :params, :context
-
-  def validate_with(form_class)
-    form_class.new(params).valid!
-  end
-
-  def authorize(policy_class, action, resource = nil)
-    policy = policy_class.new(context[:current_user], resource)
-    raise UnauthorizedError unless policy.public_send(action)
-    true
+  def step_validate
+    # Subclasses should override this method
+    raise NotImplementedError, "#{self.class} must implement #step_validate"
   end
 end

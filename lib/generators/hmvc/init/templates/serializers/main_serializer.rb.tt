@@ -1,5 +1,4 @@
 # frozen_string_literal: true
 
 class MainSerializer < ActiveModel::Serializer
-  # Add any shared serializer methods here
 end
