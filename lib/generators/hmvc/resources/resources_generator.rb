@@ -9,7 +9,6 @@ module RailsHmvc
       class_option :parent_controller, type: :string, desc: 'Parent controller class'
       class_option :parent_operation, type: :string, desc: 'Parent operation class'
       class_option :parent_form, type: :string, desc: 'Parent form class'
-      class_option :parent_serializer, type: :string, desc: 'Parent serializer class'
       class_option :skip_routes, type: :boolean, default: false, desc: 'Skip routes generation'
       class_option :actions, type: :array, desc: 'List of actions to generate'
 
@@ -64,16 +63,6 @@ module RailsHmvc
         end
       end
 
-      def create_serializer
-        args = [
-          "#{namespace_path}/#{singular_name}",
-          "--type=#{options[:type]}",
-          "--parent=#{parent_serializer_class}"
-        ]
-
-        Rails::Generators.invoke "rails_hmvc:serializer", args, behavior: behavior
-      end
-
       def add_routes
         return if options[:skip_routes]
 
@@ -87,7 +76,6 @@ module RailsHmvc
             after: "Rails.application.routes.draw do\n"
           )
         else
-          # Tạo scope module nếu cần
           namespaces = path_parts.map { |p| "scope module: :#{p}, path: '#{p}' do" }
 
           scope_content = <<~ROUTE
@@ -140,14 +128,12 @@ module RailsHmvc
       end
 
       def set_defaults_from_config
-        # Tạo một bản sao của options để tránh lỗi frozen hash
         @options = options.dup
 
         @options[:type] ||= @config['type'] || 'api'
         @options[:parent_controller] ||= @config['parent_controller']
         @options[:parent_operation] ||= @config['parent_operation']
         @options[:parent_form] ||= @config['parent_form']
-        @options[:parent_serializer] ||= @config['parent_serializer']
       end
 
       def parent_controller_class
@@ -160,10 +146,6 @@ module RailsHmvc
 
       def parent_form_class
         @options[:parent_form] || @config['parent_form'] || 'MainForm'
-      end
-
-      def parent_serializer_class
-        @options[:parent_serializer] || @config['parent_serializer'] || 'MainSerializer'
       end
     end
   end

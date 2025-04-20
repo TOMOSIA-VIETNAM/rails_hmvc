@@ -1,14 +1,18 @@
 # frozen_string_literal: true
 
 class MainOperation
+  attr_reader :params, :current_user, :form
+
   class << self
     def call(*args)
-      new(*args).call
+      itself = new(*args)
+      itself.call
+      itself
     end
   end
 
-  def initialize(params = {})
-    @params = params || {}
+  def initialize(params:)
+    @params       = params || {}
     @current_user = params[:current_user]
   end
 
@@ -19,10 +23,8 @@ class MainOperation
 
   private
 
-  attr_reader :params, :current_user, :form
-
-  def validate_with!(form_class, attributes)
-    @form = form_class.new(attributes)
-    @form.valid!
+  def step_validate
+    # Subclasses should override this method
+    raise NotImplementedError, "#{self.class} must implement #step_validate"
   end
 end

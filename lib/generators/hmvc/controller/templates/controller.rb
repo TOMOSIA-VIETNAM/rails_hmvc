@@ -8,7 +8,6 @@ class <%= controller_class_name %> < <%= parent_controller_class %>
 <% unless skip_operations? -%>
     operator = <%= operation_class_for(action) %>.call(params:)
 <% end -%>
-
 <% if action == "index" -%>
     <%= render_for_action("index") %>
 <% elsif action == "show" -%>
