@@ -38,10 +38,6 @@ module RailsHmvc
         template 'operations/main_operation.rb.tt', 'app/operations/main_operation.rb'
       end
 
-      def add_routes
-        route "# Default API routes\n# Customize paths based on your application needs"
-      end
-
       def create_concerns
         template 'concerns/renderable.rb.tt', 'app/controllers/concerns/renderable.rb'
         template 'concerns/errorable.rb.tt', 'app/controllers/concerns/errorable.rb'
