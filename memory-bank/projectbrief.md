@@ -1,20 +1,46 @@
-# Project Brief: Rails HMVC Gem
+# Rails HMVC Project Brief
 
-## Objective
-Tạo một Ruby gem cung cấp generators để thiết lập cấu trúc HMVC (Hierarchical Model-View-Controller) trong Rails applications. Gem này giúp tạo ra các components chuẩn hóa (controllers, operations, forms, serializers) theo pattern HMVC.
+## Project Overview
+This project implements a Rails HMVC (Hierarchical Model-View-Controller) architecture gem that provides a structured approach to building modular and scalable Rails applications.
 
-## Key Features
-1. **Generators**: Cung cấp bộ đầy đủ các generators để tạo components
-2. **Template-based Generation**: Sử dụng templates để tạo code mẫu
-3. **Configuration**: Hỗ trợ cấu hình thông qua rails_hmvc.yml
-4. **HMVC Structure**: Hỗ trợ cấu trúc thư mục chuẩn cho HMVC
-5. **Versioning Support**: Hỗ trợ API versioning
+## Core Requirements
 
-## Target Users
-Rails developers muốn áp dụng pattern HMVC trong dự án của họ.
+### 1. Modular Architecture
+- Implement HMVC pattern for Rails applications
+- Support versioned API components
+- Maintain clear separation of concerns
+- Enable scalable and maintainable code organization
+
+### 2. Component Structure
+- Controllers for handling HTTP requests/responses
+- Operations for business logic
+- Forms for parameter validation and transformation
+- Serializers for response formatting
+- Standardized error handling
+
+### 3. Version Management
+- Support for API versioning
+- Clear version namespace organization
+- Backward compatibility management
+
+### 4. Code Quality
+- Enforce single responsibility principle
+- Maintain consistent naming conventions
+- Implement comprehensive testing strategy
+- Follow Rails best practices
+
+## Project Goals
+1. Simplify complex Rails application development
+2. Reduce code duplication
+3. Improve maintainability
+4. Enable easy testing
+5. Support API versioning out of the box
+6. Provide clear architectural guidelines
 
 ## Success Criteria
-1. Developers có thể cài đặt gem và sử dụng generators để tạo components đúng cấu trúc
-2. Gem không can thiệp vào runtime của ứng dụng Rails
-3. Code được sinh ra tuân thủ best practices của Rails
-4. Documentation đầy đủ và dễ hiểu
+1. Clean and intuitive directory structure
+2. Comprehensive test coverage
+3. Clear documentation
+4. Easy integration process
+5. Minimal configuration requirements
+6. Performance optimization
