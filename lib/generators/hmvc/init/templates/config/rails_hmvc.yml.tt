@@ -6,25 +6,19 @@
 # Affects templates and generators
 type: api
 
-# Default behavior for adding routes
-skip_routes: false
-
 # ─────────────────────────────────────────────────────────────────────────────
 # API configuration
 # ─────────────────────────────────────────────────────────────────────────────
 
 api:
-  parent_controller: MainController
-  parent_operation: MainOperation
-  parent_form: MainForm
-  parent_serializer: MainSerializer
-
-  # Component-specific configuration
   controllers:
+    parent: MainController
     actions: ['index', 'show', 'create', 'update', 'destroy']
   operations:
+    parent: MainOperation
     actions: ['index', 'show', 'create', 'update', 'destroy']
   forms:
+    parent: MainForm
     actions: ['create', 'update']
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -32,15 +26,12 @@ api:
 # ─────────────────────────────────────────────────────────────────────────────
 
 web:
-  parent_controller: MainController
-  parent_operation: MainOperation
-  parent_form: MainForm
-  parent_serializer: MainSerializer
-
-  # Component-specific configuration
   controllers:
+    parent: MainController
     actions: ['index', 'show', 'new', 'edit', 'create', 'update', 'destroy']
   operations:
+    parent: MainOperation
     actions: ['index', 'show', 'new', 'edit', 'create', 'update', 'destroy']
   forms:
+    parent: MainForm
     actions: ['create', 'update', 'new', 'edit']

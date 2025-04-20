@@ -9,33 +9,83 @@ module RailsHmvc
 
       source_root File.expand_path('templates', __dir__)
 
-      class_option :actions, type: :string, desc: 'List of controller actions to include'
-      class_option :parent, type: :string, desc: 'Parent controller class'
       class_option :type, type: :string, desc: 'Project type (api/web)'
-      class_option :skip_operations, type: :boolean, default: false, desc: 'Skip associating with operations'
-      class_option :skip_forms, type: :boolean, default: false, desc: 'Skip associating with forms'
+
+      # Controller options
+      class_option :parent, type: :string, desc: 'Parent controller class'
+      class_option :actions, type: :string, desc: 'List of controller actions to include'
+
+      # Operation options
+      class_option :parent_operation, type: :string, desc: 'Parent operation class'
+      class_option :skip_operation, type: :boolean, default: false, desc: 'Skip associating with operations'
+      class_option :steps, type: :string, desc: 'List of operation steps to include'
+
+      # Form options
+      class_option :parent_form, type: :string, desc: 'Parent form class'
+      class_option :skip_form, type: :boolean, default: false, desc: 'Skip associating with forms'
+      class_option :attributes, type: :string, desc: 'List of form attributes in the format: name:type'
 
       def initialize(*args)
         super
         @config = load_config_for_type(options[:type])
-        @resource_config = get_resource_config('controllers')
+        @controllers_config = @config['controllers']
+        @operations_config = @config['operations']
+        @forms_config = @config['forms']
         set_defaults_from_config
       end
 
-      def create_controller_file
-        template(
-          'controller.rb',
-          "app/controllers/#{controller_path}.rb"
-        )
+      def create_controller
+        template('controller.rb', "app/controllers/#{controller_path}.rb")
+      end
+
+      def create_operations
+        return if skip_operation?
+
+        actions.each do |action|
+          Rails::Generators.invoke('rails_hmvc:operation', [
+            "#{namespace_path}/#{plural_name}/#{action}",
+            "--type=#{@options[:type]}",
+            "--parent=#{@options[:parent_operation]}",
+            "--steps=#{@options[:steps]}"
+          ], destination_root: destination_root)
+        end
+      end
+
+      def create_forms
+        return if skip_form?
+
+        form_actions = @forms_config['actions']
+        skip_actions = @forms_config['skip_actions'] || []
+
+        form_actions.each do |action|
+          next if skip_actions.include?(action)
+          next unless actions.include?(action)
+
+          Rails::Generators.invoke('rails_hmvc:form', [
+            "#{namespace_path}/#{plural_name}/#{action}",
+            "--type=#{@options[:type]}",
+            "--parent=#{@options[:parent_form]}",
+            "--attributes=#{@options[:attributes]}"
+          ], destination_root: destination_root)
+        end
       end
 
       private
 
       def set_defaults_from_config
         @options = options.dup
+        @options[:type] ||= @config['type']
 
-        @options[:parent] ||= @config['parent_controller']
-        @options[:actions] ||= @resource_config['actions'] || %w[index show create update destroy]
+        # Controller options
+        @options[:parent]  ||= @controllers_config['parent']
+        @options[:actions] ||= @controllers_config['actions']
+
+        # Operation options
+        @options[:parent_operation] ||= @operations_config['parent']
+        @options[:steps]            ||= @operations_config['steps']
+
+        # Form options
+        @options[:parent_form] ||= @forms_config['parent']
       end
 
       def parent_controller_class
@@ -60,20 +110,16 @@ module RailsHmvc
         @options[:actions]
       end
 
-      def skip_operations?
-        @options[:skip_operations]
+      def skip_operation?
+        @options[:skip_operation]
       end
 
-      def skip_forms?
-        @options[:skip_forms]
+      def skip_form?
+        @options[:skip_form]
       end
 
       def operation_class_for(action)
         "#{resource_class}::#{action.camelize}Operation"
-      end
-
-      def form_class_for(action)
-        "#{resource_class}::#{action.camelize}Form"
       end
 
       def http_method_for(action)
@@ -104,7 +150,7 @@ module RailsHmvc
       end
 
       def render_api_response(action)
-        return "head :no_content" if skip_operations?
+        return "head :no_content" if skip_operation?
 
         case action
         when 'index'
@@ -136,7 +182,7 @@ module RailsHmvc
         when 'edit'
           "render :edit"
         when 'create'
-          return "head :no_content" if skip_operations?
+          return "render :new" if skip_operation?
 
           "if operator.success?\n" \
           "      redirect_to '#', notice: '#{singular_human_name} was successfully created.'\n" \
@@ -144,7 +190,7 @@ module RailsHmvc
           "      render :new, alert: '#{human_name} could not be created.'\n" \
           "    end"
         when 'update'
-          return "head :no_content" if skip_operations?
+          return "render :edit" if skip_operation?
 
           "if operator.success?\n" \
           "      redirect_to '#', notice: '#{singular_human_name} was successfully updated.'\n" \
@@ -152,7 +198,7 @@ module RailsHmvc
           "      render :edit, alert: '#{singular_human_name} could not be updated.'\n" \
           "    end"
         when 'destroy'
-          return "head :no_content" if skip_operations?
+          return "head :no_content" if skip_operation?
 
           "if operator.success?\n" \
           "      redirect_to '#'\n" \

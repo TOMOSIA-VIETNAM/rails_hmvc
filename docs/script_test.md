@@ -64,7 +64,7 @@ cat config/routes.rb
 # Generate form với attributes và validations
 rails g rails_hmvc:form v1/users/create \
   --attributes=name:string email:string age:integer \
-  --validations=name:presence:true email:presence:true,format:{with:/\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i} \
+  --validations=name:presence:true email:presence:true \
   --type=api
 
 # Kiểm tra form được tạo
@@ -75,10 +75,10 @@ cat app/forms/v1/users/create_form.rb
 
 ```bash
 # Generate operation với custom parent class
-rails g rails_hmvc:operation v1/products/search --parent=SearchOperation --type=api
+rails g rails_hmvc:operation v1/products/create --parent=SearchOperation --type=api
 
 # Kiểm tra operation được tạo
-cat app/operations/v1/products/search_operation.rb
+cat app/operations/v1/products/create_operation.rb
 ```
 
 ### 6. Test Controller Generator với Skip Options

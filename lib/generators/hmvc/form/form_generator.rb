@@ -9,23 +9,15 @@ module RailsHmvc
 
       source_root File.expand_path('templates', __dir__)
 
-      class_option :attributes, type: :array, default: [],
-                  desc: 'List of attributes in the format: name:type'
-
-      class_option :validations, type: :array, default: [],
-                  desc: 'List of validations in the format: attribute:validation_type:options'
-
-      class_option :parent, type: :string,
-                  desc: 'Parent class to inherit from'
-
       class_option :type, type: :string, desc: 'Project type (api/web)'
+      class_option :parent, type: :string, desc: 'Parent class to inherit from'
+      class_option :attributes, type: :string, desc: 'List of attributes in the format: name:type'
 
       def initialize(*args)
         super
-        @config = load_config_for_type(options[:type])
-        @resource_config = get_resource_config('forms')
-        @form_attributes = parse_attributes(options[:attributes])
-        @form_validations = parse_validations(options[:validations])
+        @config           = load_config_for_type(options[:type])
+        @forms_config     = @config['forms']
+        @form_attributes  = parse_attributes(options[:attributes])
         set_defaults_from_config
       end
 
@@ -40,36 +32,23 @@ module RailsHmvc
 
       def set_defaults_from_config
         @options = options.dup
-        @options[:parent] ||= @config['parent_form']
-
-        # Check if we should skip this action
-        if @resource_config['skip_actions']&.include?(file_name)
-          say_status :skip, "Skipping form for action #{file_name} (configured in rails_hmvc.yml)", :yellow
-          exit
-        end
+        @options[:type]   ||= @config['type']
+        @options[:parent] ||= @forms_config['parent']
       end
 
       def parse_attributes(attrs)
-        attrs.map do |attr|
-          name, type = attr.split(':')
-          { name: name, type: type || 'string' }
+        if attrs.nil?
+          [{ prop: :name, type: 'string' }]
+        else
+          attrs.split(',').map do |attr|
+            prop, type = attr.split(':')
+            { prop: prop, type: type }
+          end
         end
-      end
-
-      def parse_validations(validations)
-        result = {}
-        validations.each do |validation|
-          attr, type, options = validation.split(':')
-          result[attr] ||= []
-
-          # Handle simple options like presence:true
-          result[attr] << "#{type}: #{options || true}"
-        end
-        result
       end
 
       def parent_form_class
-        @options[:parent] || 'MainForm'
+        @options[:parent]
       end
 
       def form_class_name
@@ -77,23 +56,15 @@ module RailsHmvc
       end
 
       def attribute_definitions
-        if @form_attributes.any?
-          @form_attributes.map do |attr|
-            "  attribute :#{attr[:name]}, :#{attr[:type]}"
-          end.join("\n")
-        else
-          '  # attribute :name, :string'
-        end
-      end
+        return if @form_attributes.nil?
 
-      def validation_definitions
-        if @form_validations.any?
-          @form_validations.map do |attr, validations|
-            "  validates :#{attr}, #{validations.join(', ')}"
-          end.join("\n")
-        else
-          '  # validates :name, presence: true'
-        end
+        @form_attributes.map do |attr|
+          if attr[:type].nil?
+            "  attribute :#{attr[:prop]}"
+          else
+            "  attribute :#{attr[:prop]}, :#{attr[:type]}"
+          end
+        end.join("\n")
       end
     end
   end

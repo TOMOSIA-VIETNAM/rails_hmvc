@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class MainOperation
-  attr_reader :params, :current_user, :form
+  attr_reader :params, :current_user, :form, :errors
 
   class << self
     def call(*args)
@@ -19,6 +19,18 @@ class MainOperation
   def call
     # Subclasses should override this method
     raise NotImplementedError, "#{self.class} must implement #call"
+  end
+
+  def success?
+    @errors.empty?
+  end
+
+  def error?
+    !success?
+  end
+
+  def errors
+    @errors ||= @form.errors
   end
 
   private
