@@ -36,13 +36,6 @@ module RailsHmvc
         base_config.merge(type_config)
       end
 
-      def get_resource_config(resource_type)
-        type = options[:type] || load_config['type'] || 'api'
-        config = load_config_for_type(type)
-
-        config[resource_type.to_s] || {}
-      end
-
       def namespace_path
         class_path.join('/')
       end

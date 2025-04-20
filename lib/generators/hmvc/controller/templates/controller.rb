@@ -5,7 +5,7 @@ class <%= controller_class_name %> < <%= parent_controller_class %>
 <% actions.each_with_index do |action, index| -%>
 <%= "\n" if index > 0 %>  # <%= action_comment_for(action) %>
   def <%= action %>
-<% unless skip_operations? -%>
+<% unless skip_operation? -%>
     operator = <%= operation_class_for(action) %>.call(params:)
 <% end -%>
 <% if action == "index" -%>

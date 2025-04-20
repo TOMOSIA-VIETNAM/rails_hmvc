@@ -5,14 +5,14 @@ module RailsHmvc
 
       source_root File.expand_path('templates', __dir__)
 
-      class_option :parent, type: :string, desc: 'Parent operation class'
       class_option :type, type: :string, desc: 'Project type (api/web)'
+      class_option :parent, type: :string, desc: 'Parent operation class'
       class_option :steps, type: :string, desc: 'List of step methods'
 
       def initialize(*args)
         super
         @config = load_config_for_type(options[:type])
-        @resource_config = get_resource_config('operations')
+        @operations_config = @config['operations']
         set_defaults_from_config
       end
 
@@ -27,11 +27,13 @@ module RailsHmvc
 
       def set_defaults_from_config
         @options = options.dup
-        @options[:parent] ||= @config['parent_operation']
+        @options[:type]   ||= @config['type']
+        @options[:parent] ||= @operations_config['parent']
+        @options[:steps]  ||= @operations_config['steps']
       end
 
       def parent_operation_class
-        @options[:parent] || 'MainOperation'
+        @options[:parent]
       end
 
       def operation_class_name
@@ -39,12 +41,11 @@ module RailsHmvc
       end
 
       def steps
-        @options[:steps].to_s.split(',')
-      end
+        return [] if @options[:steps].nil?
+        return @options[:steps].split(',') if @options[:steps].is_a?(String)
 
-      # def form_class_name
-      #   "#{namespace_name}::#{class_name.gsub('Operation', 'Form')}"
-      # end
+        Array(@options[:steps])
+      end
 
       def step_methods
         steps.map do |method_name|
