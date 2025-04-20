@@ -23,11 +23,11 @@ api:
 
   # Component-specific configuration
   controllers:
-    actions: ['index', 'show', 'create', 'update', 'destroy']
+    actions: [index, show, create, update, destroy]
   operations:
-    actions: ['index', 'show', 'create', 'update', 'destroy']
+    actions: [index, show, create, update, destroy]
   forms:
-    actions: ['create', 'update']
+    actions: [create, update]
     skip_actions: []
 
 # Web Configuration
@@ -40,9 +40,9 @@ web:
 
   # Component-specific configuration
   controllers:
-    actions: ['index', 'show', 'new', 'edit', 'create', 'update', 'destroy']
+    actions: [index, show, create, update, destroy]
   operations:
-    actions: ['index', 'show', 'new', 'edit', 'create', 'update', 'destroy']
+    actions: [index, show, create, update, destroy]
   forms:
-    actions: ['create', 'update', 'new', 'edit']
+    actions: [create, update]
     skip_actions: []

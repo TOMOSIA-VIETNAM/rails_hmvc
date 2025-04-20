@@ -12,6 +12,7 @@ module RailsHmvc
           app/models
           lib/errors
           app/controllers/concerns
+          config/initializers
         ].each do |dir|
           empty_directory dir
         end
@@ -21,26 +22,13 @@ module RailsHmvc
         template 'config/rails_hmvc.yml.tt', 'config/rails_hmvc.yml'
       end
 
+      def create_initializer
+        template 'config/initializers/rails_hmvc.rb.tt', 'config/initializers/rails_hmvc.rb'
+      end
+
       def modify_application_rb
         inject_into_file 'config/application.rb', after: "class Application < Rails::Application\n" do
           <<-RUBY
-    # Load HMVC configuration
-    config.before_configuration do
-      rails_hmvc_config = Rails.root.join('config', 'rails_hmvc.yml')
-      if File.exist?(rails_hmvc_config)
-        begin
-          config_content = YAML.safe_load(File.read(rails_hmvc_config))
-          config_env = config_content[Rails.env] || {}
-
-          config_env.each do |key, value|
-            config.send("\#{key}=", value) if config.respond_to?("\#{key}=")
-          end
-        rescue => e
-          puts "Warning: Error loading rails_hmvc.yml: \#{e.message}"
-        end
-      end
-    end
-
     # Autoload lib directory
     config.autoload_paths += %W[\#{config.root}/lib]
 
@@ -68,7 +56,7 @@ module RailsHmvc
       end
 
       def add_routes
-        route "scope module: :v1, path: 'v1' do\n  # V1 API routes go here\nend"
+        route "# Default API routes\n# Customize paths based on your application needs"
       end
 
       def create_concerns

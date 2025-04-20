@@ -18,11 +18,15 @@ module RailsHmvc
       class_option :parent, type: :string,
                   desc: 'Parent class to inherit from'
 
+      class_option :type, type: :string, desc: 'Project type (api/web)'
+
       def initialize(*args)
         super
+        @config = load_config_for_type(options[:type])
+        @resource_config = get_resource_config('forms')
         @form_attributes = parse_attributes(options[:attributes])
         @form_validations = parse_validations(options[:validations])
-        @parent_class = determine_parent_class
+        set_defaults_from_config
       end
 
       def create_form_file
@@ -33,6 +37,19 @@ module RailsHmvc
       end
 
       private
+
+      def set_defaults_from_config
+        # Tạo một bản sao của options để tránh lỗi frozen hash
+        @options = options.dup
+
+        @options[:parent] ||= @config['parent_form']
+
+        # Kiểm tra xem có nên skip action này không
+        if @resource_config['skip_actions']&.include?(file_name)
+          say_status :skip, "Skipping form for action #{file_name} (configured in rails_hmvc.yml)", :yellow
+          exit
+        end
+      end
 
       def parse_attributes(attrs)
         attrs.map do |attr|
@@ -47,77 +64,18 @@ module RailsHmvc
           attr, type, options = validation.split(':')
           result[attr] ||= []
 
-          if options&.start_with?('{') && options&.end_with?('}')
-            # Handle hash options like length:{maximum:100}
-            options_content = options[1..-2] # Remove { and }
-            options_parts = []
-
-            # Parse key-value pairs
-            current_part = ""
-            nesting_level = 0
-
-            options_content.each_char.with_index do |char, i|
-              if char == '{'
-                nesting_level += 1
-                current_part += char
-              elsif char == '}'
-                nesting_level -= 1
-                current_part += char
-              elsif char == ',' && nesting_level == 0
-                options_parts << current_part.strip
-                current_part = ""
-              else
-                current_part += char
-              end
-            end
-
-            options_parts << current_part.strip if current_part.strip.length > 0
-
-            # Format options
-            formatted_options = options_parts.map do |opt|
-              if opt.include?(':')
-                key, value = opt.split(':', 2)
-                "#{key}: #{value}"
-              else
-                opt
-              end
-            end.join(', ')
-
-            result[attr] << "#{type}: {#{formatted_options}}"
-          else
-            # Handle simple options like presence:true
-            result[attr] << "#{type}: #{options || true}"
-          end
+          # Handle simple options like presence:true
+          result[attr] << "#{type}: #{options || true}"
         end
         result
       end
 
-      def determine_parent_class
-        options[:parent] || load_config.dig('parent_form') || 'MainForm'
+      def parent_form_class
+        @options[:parent] || 'MainForm'
       end
 
       def form_class_name
-        "#{class_name}Form"
-      end
-
-      def namespaced_class_name
-        if class_path.empty?
-          form_class_name
-        else
-          class_parts = class_path.dup
-          # Nếu path là v1/posts/create thì class name sẽ là V1::Posts::CreateForm
-          namespace = class_parts.map(&:camelize)
-          resource_name = namespace.pop # Lấy tên resource (create)
-          "#{namespace.join('::')}::#{resource_name.camelize}Form"
-        end
-      end
-
-      def parent_class_name
-        if @parent_class.include?('::')
-          @parent_class
-        else
-          "::#{@parent_class}"
-        end
+        file_name.camelize
       end
 
       def attribute_definitions
