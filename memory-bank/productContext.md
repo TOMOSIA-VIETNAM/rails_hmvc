@@ -1,44 +1,74 @@
 # Product Context
 
 ## Problem Statement
-
-Rails là framework tuyệt vời nhưng cần một cấu trúc nhất quán để làm việc hiệu quả với các dự án lớn. Cấu trúc MVC chuẩn của Rails không đủ để tách biệt các concerns khi ứng dụng phát triển. Các controllers thường trở nên cồng kềnh với quá nhiều business logic, làm cho code khó bảo trì và test.
+Rails applications often grow complex over time, leading to:
+- Monolithic codebases that are hard to maintain
+- Difficulty in versioning APIs
+- Unclear separation of concerns
+- Code duplication across similar features
+- Testing challenges
+- Inconsistent architectural patterns
 
 ## Solution
+The Rails HMVC gem provides:
+1. A structured approach to organizing Rails applications using the HMVC pattern
+2. Clear separation of responsibilities between components
+3. Built-in support for API versioning
+4. Standardized error handling
+5. Consistent architectural patterns
 
-Rails HMVC Gem đưa ra một giải pháp bằng cách cung cấp các generators để thiết lập cấu trúc HMVC (Hierarchical Model-View-Controller) trong Rails. Nó tách biệt rõ ràng các concerns:
+## User Experience Goals
 
-1. **Controllers**: Xử lý HTTP requests, routing và responses
-2. **Forms**: Xử lý validation và data transformation
-3. **Operations**: Xử lý business logic
-4. **Serializers**: Xử lý data serialization
-5. **Models**: Xử lý persistence và data relationships
+### For Developers
+1. **Easy Integration**
+   - Simple setup process
+   - Clear documentation
+   - Minimal configuration required
 
-## User Experience
+2. **Clear Structure**
+   - Intuitive directory organization
+   - Consistent naming conventions
+   - Standardized component interfaces
 
-### Developer Experience
+3. **Development Efficiency**
+   - Reduced boilerplate code
+   - Clear patterns for common tasks
+   - Built-in best practices
 
-- **Tạo Code Nhanh Chóng**: Generators giúp tạo ra code mẫu tuân thủ cấu trúc HMVC
-- **Cấu Trúc Nhất Quán**: Các components được tổ chức theo cấu trúc chuẩn
-- **Dễ Test**: Tách biệt concerns giúp viết tests dễ dàng hơn
-- **Mở Rộng Dễ Dàng**: Cấu trúc modular giúp dễ dàng thêm tính năng mới
+4. **Maintainability**
+   - Easy to understand component relationships
+   - Clear separation of concerns
+   - Standardized error handling
 
-### End User Experience
+### For End Users
+1. **API Consistency**
+   - Standardized response formats
+   - Consistent error handling
+   - Clear versioning structure
 
-- **API Responses Nhất Quán**: Format JSON chuẩn cho responses
-- **Xử Lý Lỗi Tốt Hơn**: Error handling được chuẩn hóa
-- **Hiệu Năng Tốt**: Tách biệt concerns giúp tối ưu hóa từng thành phần
+2. **Performance**
+   - Optimized code organization
+   - Efficient request handling
+   - Minimal overhead
 
-## Target Users
+## Target Audience
+- Rails developers building complex applications
+- Teams requiring API versioning
+- Projects needing clear architectural guidelines
+- Applications requiring modular organization
 
-- Rails developers làm việc với các dự án API
-- Teams cần một cấu trúc nhất quán cho dự án
-- Developers muốn áp dụng best practices từ đầu dự án
+## Key Benefits
+1. **Structured Development**
+   - Clear architectural patterns
+   - Consistent code organization
+   - Standardized component interfaces
 
-## Value Proposition
+2. **Improved Maintainability**
+   - Clear separation of concerns
+   - Modular components
+   - Easy testing
 
-Rails HMVC Gem giúp các teams:
-1. **Tiết Kiệm Thời Gian**: Không cần tự setup cấu trúc HMVC
-2. **Chuẩn Hóa Code**: Đảm bảo tất cả developers tuân thủ cùng một pattern
-3. **Dễ Dàng Onboarding**: Developers mới dễ dàng hiểu cấu trúc dự án
-4. **Code Chất Lượng Cao**: Khuyến khích separation of concerns và clean code
+3. **Version Management**
+   - Built-in API versioning
+   - Backward compatibility support
+   - Clear upgrade paths

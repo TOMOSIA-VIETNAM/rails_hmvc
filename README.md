@@ -1,120 +1,120 @@
 # Rails HMVC
 
 [![Gem Version](https://badge.fury.io/rb/rails_hmvc.svg)](https://badge.fury.io/rb/rails_hmvc)
-[![Build Status](https://github.com/yourusername/rails_hmvc/workflows/CI/badge.svg)](https://github.com/yourusername/rails_hmvc/actions)
 [![Ruby Style Guide](https://img.shields.io/badge/code_style-rubocop-brightgreen.svg)](https://github.com/rubocop/rubocop)
 
-A Ruby gem that provides generators to establish an HMVC (Hierarchical Model-View-Controller) architecture in Rails applications. This gem helps create standardized components (controllers, operations, forms, serializers) following the HMVC pattern.
+A Ruby gem that implements the HMVC (Hierarchical Model-View-Controller) architecture pattern for Rails applications through a set of generators. This gem helps create standardized components (controllers, operations, forms, serializers) with proper separation of concerns.
 
-## Why Rails HMVC?
+## Architecture Overview
 
-Rails is an excellent framework, but as projects grow, the standard MVC structure can become unwieldy. Controllers often become bloated with business logic, making code difficult to maintain and test.
-
-Rails HMVC solves this by providing:
-
-- **Clear Separation of Concerns**: Each component has a single responsibility
-- **Consistent Structure**: Standardized directory organization
-- **Easy Testing**: Isolated components are easier to test
-- **Improved Maintainability**: Modular code is simpler to maintain
-- **API Versioning**: Built-in support for API versioning
-
-## Architecture
-
-This gem establishes the following HMVC structure:
+The gem establishes the following HMVC structure:
 
 ```
 app/
-├── controllers/   # Handle HTTP requests and responses
+├── controllers/   # HTTP request/response handlers
 │   └── v1/
 │       └── users_controller.rb
-├── operations/    # Handle business logic
+├── operations/    # Business logic components
 │   └── v1/users/
 │       ├── index_operation.rb
 │       └── ...
-├── forms/         # Handle validation and data transformation
+├── forms/         # Input validation and transformation
 │   └── v1/users/
 │       ├── create_form.rb
 │       └── ...
-├── models/        # ActiveRecord models and database logic
-│   └── user.rb
-└── serializers/   # Handle JSON serialization
+└── serializers/   # Response formatting
     └── v1/
         └── user_serializer.rb
 
 lib/
-└── errors/        # Custom error classes
-    ├── base_error.rb
-    ├── api_error.rb
+└── errors/        # Custom error handling
+    ├── application_error.rb
     └── resource_error.rb
 ```
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Add to your application's Gemfile:
 
 ```ruby
 gem 'rails_hmvc'
 ```
 
-And then execute:
+Then execute:
 
 ```bash
 $ bundle install
-```
-
-Or install it yourself as:
-
-```bash
-$ gem install rails_hmvc
 ```
 
 ## Usage
 
 ### Initialize HMVC Structure
 
+Set up the basic HMVC architecture in your Rails application:
+
 ```bash
-$ rails g hmvc:init
+$ rails g rails_hmvc:init --type=api
 ```
 
-This creates the basic HMVC structure, base classes, and configuration file.
+This creates:
+- Base directory structure
+- Parent classes for components
+- Error handling classes
+- Configuration files
 
-### Generate Full Resource
+### Generate Controllers
+
+Create a controller with default REST actions:
 
 ```bash
-$ rails g hmvc:resources users
+$ rails g rails_hmvc:controller v1/users --type=api
 ```
 
-This generates:
-- `app/controllers/v1/users_controller.rb`
-- Operations in `app/operations/v1/users/`
-- Forms in `app/forms/v1/users/`
-- Serializer in `app/serializers/v1/user_serializer.rb`
-- Route entries in `config/routes.rb`
-
-### Generate Individual Components
-
-#### Controller
+With specific actions:
 
 ```bash
-$ rails g hmvc:controller users --actions=index,show,create,update,destroy
+$ rails g rails_hmvc:controller v1/auth --type=api --actions=login,register,logout
 ```
 
-#### Operations
+Skip associated operations or forms:
 
 ```bash
-$ rails g hmvc:operation users/create --steps=validate,create_user,publish
+$ rails g rails_hmvc:controller v1/products --type=api --skip_operation
+$ rails g rails_hmvc:controller v1/categories --type=api --skip_form
 ```
 
-#### Forms
+### Generate Operations
+
+Create a single operation:
 
 ```bash
-$ rails g hmvc:form users/create --attributes name:string email:string --validations name:presence:true,email:presence:true,email:format:{with:/\A[^@\s]+@[^@\s]+\z/}
+$ rails g rails_hmvc:operation v1/payments/process
 ```
 
-#### Serializers
+Generate multiple operations:
 
 ```bash
-$ rails g hmvc:serializer user --attributes id:integer name:string email:string
+$ rails g rails_hmvc:operation v1/orders --actions=approve,reject,ship
+```
+
+Add operation steps:
+
+```bash
+$ rails g rails_hmvc:operation v1/checkout/complete --steps=validate,process_payment,create_order
+```
+
+### Generate Forms
+
+Create a form with attributes:
+
+```bash
+$ rails g rails_hmvc:form v1/auth/login --attributes=email:string,password:string
+```
+
+Generate multiple forms:
+
+```bash
+$ rails g rails_hmvc:form v1/products --actions=create,update --attributes=name:string,price:decimal
 ```
 
 ## Configuration
@@ -122,76 +122,86 @@ $ rails g hmvc:serializer user --attributes id:integer name:string email:string
 Rails HMVC uses a configuration file at `config/rails_hmvc.yml`:
 
 ```yaml
-# Default project type: "api" or "web"
+# Project type (api or web)
 type: api
 
-# Default parent classes
-parent_controller: ApplicationController
-parent_operation: ApplicationOperation
-parent_form: ApplicationForm
-parent_serializer: ApplicationSerializer
+# Parent classes
+controllers:
+  parent: MainController
+  actions: [index, show, create, update, destroy]
 
-# Route generation behavior
-skip_routes: false
+operations:
+  parent: MainOperation
+  steps: [validate, execute]
 
-# API versions
-versions:
-  - v1
-  - v2
+forms:
+  parent: MainForm
+  actions: [create, update]
 ```
 
-## CLI Options
+## Generator Options
 
-All generators support these common options:
+Common options for all generators:
 
-- `--version`: API version (default: v1)
-- `--parent`: Parent class
 - `--type`: Project type (api/web)
+- `--parent`: Parent class name
 
-Plus specific options for each generator.
+Controller-specific options:
+- `--actions`: List of controller actions
+- `--skip_operation`: Skip generating operations
+- `--skip_form`: Skip generating forms
 
-## Request Flow
+Operation-specific options:
+- `--steps`: List of operation steps
+- `--actions`: List of operations to generate
 
-A typical request flow with Rails HMVC:
+Form-specific options:
+- `--attributes`: List of form attributes (name:type format)
+- `--actions`: List of forms to generate
 
-1. **Controller** receives HTTP request
-2. **Form** validates and transforms incoming data
-3. **Operation** executes business logic using the validated data
-4. **Serializer** formats the response data
-5. **Controller** returns HTTP response
+## Component Workflows
 
-## Best Practices
+### API Workflow
 
-- Keep controllers thin, delegating to operations
-- Use forms for input validation and transformation
-- Implement business logic in operations
-- Break complex operations into small, focused steps
-- Use serializers for consistent API responses
+1. Controller receives HTTP request
+2. Form validates input parameters
+3. Operation executes business logic
+4. Serializer formats the response
+5. Controller returns HTTP response
+
+### Web Workflow
+
+1. Controller receives HTTP request
+2. Form validates input parameters
+3. Operation executes business logic
+4. Controller renders view template
 
 ## Requirements
 
 - Ruby >= 2.7.0
-- Rails >= 6.1
+- Rails >= 6.1.0
 
-## Development
+## Development Setup
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+To set up for development:
 
-### Setup Demo Rails
+```bash
+# Create test Rails application
+rails new example --api
+cd example
 
-1. Run `bundle init`
-2. Modify Gemfile: add `gem 'rails', '~> 8.0', '>= 8.0.2'`
-3. Run `bundle exec rails new . --api --force --skip-test --skip-bundle`
-4. Modify Gemfile: add `gem 'rails_hmvc', path: '../'`
-5. Run `bundle install --path vendor/bundle`
-6. Run `bundle exec rails g | grep rails_hmvc` to check gem installed
-7. Run `rails g rails_hmvc:init`
+# Add the gem
+bundle add rails_hmvc --path=../
 
+# Generate initial structure
+rails g rails_hmvc:init --type=api
 
-## Contributing
+# Test generators
+rails g rails_hmvc:controller v1/users --type=api
+```
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/yourusername/rails_hmvc.
+## Authors
 
-## License
+Minh Tang <minh.tang1@tomosia.com>
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+Nguyen Anh <anh.nguyen1@tomosia.com>
