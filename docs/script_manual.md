@@ -2,6 +2,13 @@
 
 Test script for manually validating the Rails HMVC generators. Each test case includes input command and expected output files.
 
+## Setup project example
+
+  ```
+  rm -rf example && rails new example --api --skip-git --skip-javascript
+  cd example && bundle add rails_hmvc --path ".." && bundle install --path vendor/bundle && bundle info rails_hmvc
+  ```
+
 ## 1. `init` Generator
 
 ### Test Case 1.1: API Project Initialization
