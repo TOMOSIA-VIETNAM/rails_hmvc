@@ -12,17 +12,18 @@ module RailsHmvc
       class_option :type, type: :string, desc: 'Project type (api/web)'
 
       # Controller options
+      class_option :skip_controller, type: :boolean, default: false, desc: 'Skip generating controller'
       class_option :parent, type: :string, desc: 'Parent controller class'
       class_option :actions, type: :string, desc: 'List of controller actions to include'
 
       # Operation options
-      class_option :parent_operation, type: :string, desc: 'Parent operation class'
       class_option :skip_operation, type: :boolean, default: false, desc: 'Skip associating with operations'
+      class_option :parent_operation, type: :string, desc: 'Parent operation class'
       class_option :steps, type: :string, desc: 'List of operation steps to include'
 
       # Form options
-      class_option :parent_form, type: :string, desc: 'Parent form class'
       class_option :skip_form, type: :boolean, default: false, desc: 'Skip associating with forms'
+      class_option :parent_form, type: :string, desc: 'Parent form class'
       class_option :attributes, type: :string, desc: 'List of form attributes in the format: name:type'
 
       def initialize(*args)
@@ -35,6 +36,8 @@ module RailsHmvc
       end
 
       def create_controller
+        return if skip_controller?
+
         template('controller.rb', "app/controllers/#{controller_path}.rb")
       end
 
@@ -108,6 +111,10 @@ module RailsHmvc
         return @options[:actions].split(',') if @options[:actions].is_a?(String)
 
         @options[:actions]
+      end
+
+      def skip_controller?
+        @options[:skip_controller]
       end
 
       def skip_operation?
