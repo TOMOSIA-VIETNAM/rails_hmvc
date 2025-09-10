@@ -117,6 +117,26 @@ Generate multiple forms:
 $ rails g rails_hmvc:form v1/products --actions=create,update --attributes=name:string,price:decimal
 ```
 
+### Generate Serializers
+
+Create a serializer with attributes:
+
+```bash
+$ rails g rails_hmvc:serializer v1/auth/login --attributes=email,password
+```
+
+Generate multiple serializers:
+
+```bash
+$ rails g rails_hmvc:serializer v1/products --actions=create,update --attributes=name,price
+```
+
+Generate serializers with associations:
+
+```bash
+$ rails g rails_hmvc:serializer v1/client/products --actions=info --attributes=name,price --associations=comments,user
+```
+
 ## Configuration
 
 Rails HMVC uses a configuration file at `config/rails_hmvc.yml`:

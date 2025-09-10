@@ -26,6 +26,11 @@ module RailsHmvc
       class_option :parent_form, type: :string, desc: 'Parent form class'
       class_option :attributes, type: :string, desc: 'List of form attributes in the format: name:type'
 
+      # Serializer options
+      class_option :skip_serializer, type: :boolean, default: false, desc: 'Skip associating with serializers'
+      class_option :parent_serializer, type: :string, desc: 'Parent serializer class'
+      class_option :attributes, type: :string, desc: 'List of serializer attributes in the format: name'
+
       def initialize(*args)
         super
         @config = load_config_for_type(options[:type])
@@ -46,11 +51,11 @@ module RailsHmvc
 
         actions.each do |action|
           Rails::Generators.invoke('rails_hmvc:operation', [
-            "#{namespace_path}/#{plural_name}/#{action}",
-            "--type=#{@options[:type]}",
-            "--parent=#{@options[:parent_operation]}",
-            "--steps=#{@options[:steps]}"
-          ], destination_root: destination_root)
+                                     "#{namespace_path}/#{plural_name}/#{action}",
+                                     "--type=#{@options[:type]}",
+                                     "--parent=#{@options[:parent_operation]}",
+                                     "--steps=#{@options[:steps]}"
+                                   ], destination_root: destination_root)
         end
       end
 
@@ -65,11 +70,30 @@ module RailsHmvc
           next unless actions.include?(action)
 
           Rails::Generators.invoke('rails_hmvc:form', [
-            "#{namespace_path}/#{plural_name}/#{action}",
-            "--type=#{@options[:type]}",
-            "--parent=#{@options[:parent_form]}",
-            "--attributes=#{@options[:attributes]}"
-          ], destination_root: destination_root)
+                                     "#{namespace_path}/#{plural_name}/#{action}",
+                                     "--type=#{@options[:type]}",
+                                     "--parent=#{@options[:parent_form]}",
+                                     "--attributes=#{@options[:attributes]}"
+                                   ], destination_root: destination_root)
+        end
+      end
+
+      def create_serializers
+        return if skip_serializer?
+
+        serializer_actions = @serializers_config['actions']
+        skip_actions = @serializers_config['skip_actions'] || []
+
+        serializer_actions.each do |action|
+          next if skip_actions.include?(action)
+          next unless actions.include?(action)
+
+          Rails::Generators.invoke('rails_hmvc:serializer', [
+                                     "#{namespace_path}/#{plural_name}/#{action}",
+                                     "--type=#{@options[:type]}",
+                                     "--parent=#{@options[:parent_serializer]}",
+                                     "--attributes=#{@options[:attributes]}"
+                                   ], destination_root: destination_root)
         end
       end
 
@@ -125,6 +149,10 @@ module RailsHmvc
         @options[:skip_form]
       end
 
+      def skip_serializer?
+        @options[:skip_serializer]
+      end
+
       def operation_class_for(action)
         "#{resource_class}::#{action.camelize}Operation"
       end
@@ -157,7 +185,7 @@ module RailsHmvc
       end
 
       def render_api_response(action)
-        return "head :no_content" if skip_operation?
+        return 'head :no_content' if skip_operation?
 
         case action
         when 'index'
@@ -165,53 +193,53 @@ module RailsHmvc
           "      collection: [],\n" \
           "      serializer: '',\n" \
           "      meta: pagination_meta([])\n" \
-          "    )"
+          '    )'
         when 'show', 'create', 'update'
           status = action == 'create' ? ':created' : ':ok'
           "render_resource(\n" \
           "      resource: nil,\n" \
           "      serializer: '',\n" \
           "      status: #{status}\n" \
-          "    )"
+          '    )'
         else
-          "head :no_content"
+          'head :no_content'
         end
       end
 
       def render_web_response(action)
         case action
         when 'index'
-          "render :index"
+          'render :index'
         when 'show'
-          "render :show"
+          'render :show'
         when 'new'
-          "render :new"
+          'render :new'
         when 'edit'
-          "render :edit"
+          'render :edit'
         when 'create'
-          return "render :new" if skip_operation?
+          return 'render :new' if skip_operation?
 
           "if operator.success?\n" \
           "      redirect_to '#', notice: '#{singular_human_name} was successfully created.'\n" \
           "    else\n" \
           "      render :new, alert: '#{human_name} could not be created.'\n" \
-          "    end"
+          '    end'
         when 'update'
-          return "render :edit" if skip_operation?
+          return 'render :edit' if skip_operation?
 
           "if operator.success?\n" \
           "      redirect_to '#', notice: '#{singular_human_name} was successfully updated.'\n" \
           "    else\n" \
           "      render :edit, alert: '#{singular_human_name} could not be updated.'\n" \
-          "    end"
+          '    end'
         when 'destroy'
-          return "head :no_content" if skip_operation?
+          return 'head :no_content' if skip_operation?
 
           "if operator.success?\n" \
           "      redirect_to '#'\n" \
           "    else\n" \
           "      render :index, alert: '#{human_name} could not be destroyed.'\n" \
-          "    end"
+          '    end'
         else
           "render :#{action}"
         end
