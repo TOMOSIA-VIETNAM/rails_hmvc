@@ -1,14 +1,15 @@
-# Rails HMVC RuboCop Configuration
+# Rails HMVC RuboCop Configuration Example
+# Copy this file to your project root as .rubocop.yml
 
 require:
-  - rails_hmvc
+  - rails_hmvc  # This loads all Rails HMVC cops
 
 plugins:
   - rubocop-rails
   - rubocop-rspec
 
 AllCops:
-  TargetRubyVersion: 2.7
+  TargetRubyVersion: 3.2  # Adjust to your project's Ruby version (3.0, 3.1, 3.2, etc.)
   NewCops: enable
   Exclude:
     - 'vendor/**/*'
@@ -24,7 +25,7 @@ AllCops:
 # ============================================================================
 
 Style/Documentation:
-  Enabled: false
+  Enabled: false  # Disable for HMVC components that are self-documenting
 
 Style/StringLiterals:
   EnforcedStyle: single_quotes
@@ -38,7 +39,7 @@ Style/FrozenStringLiteralComment:
 Style/ClassAndModuleChildren:
   EnforcedStyle: compact
   Exclude:
-    - 'app/controllers/**/*'
+    - 'app/controllers/**/*'   # Allow nested modules for namespacing
     - 'app/operations/**/*'
     - 'app/forms/**/*'
     - 'app/serializers/**/*'
@@ -56,7 +57,7 @@ Style/MethodCallWithArgsParentheses:
 # ============================================================================
 
 Layout/LineLength:
-  Max: 120
+  Max: 120  # Reasonable for modern screens
 
 # ============================================================================
 # METRICS RULES - HMVC Optimized
@@ -66,24 +67,24 @@ Metrics/MethodLength:
   Max: 20
   Exclude:
     - 'lib/generators/**/*'
-    - 'app/operations/**/step_*.rb'  # Step methods can be longer
+    - 'app/operations/**/step_*.rb'  # Step methods can be longer for business logic
 
 Metrics/ClassLength:
   Max: 300
   Exclude:
     - 'lib/generators/**/*'
-    - 'app/operations/**/*'  # Operations can be longer due to step methods
+    - 'app/operations/**/*'  # Operations can be longer due to multiple step methods
 
 Metrics/BlockLength:
   Exclude:
-    - 'spec/**/*'
-    - 'lib/generators/**/*'
-    - 'config/routes.rb'
+    - 'spec/**/*'          # RSpec blocks can be long
+    - 'lib/generators/**/*' # Generator templates can be long
+    - 'config/routes.rb'   # Routes file can be long
 
 Metrics/AbcSize:
   Max: 20
   Exclude:
-    - 'app/operations/**/step_*.rb'  # Step methods can be more complex
+    - 'app/operations/**/step_*.rb'  # Step methods contain concentrated business logic
 
 # ============================================================================
 # NAMING CONVENTIONS - HMVC Specific
@@ -94,7 +95,7 @@ Naming/MethodName:
   Include:
     - 'app/operations/**/*.rb'
   AllowedPatterns:
-    - '^step_'  # Allow step_ prefix in operations
+    - '^step_'  # Allow step_ prefix for operation step methods
 
 # ============================================================================
 # RAILS SPECIFIC RULES
@@ -140,14 +141,12 @@ RailsHmvc/Operations/StepMethods:
   Enabled: true
   Include:
     - 'app/operations/**/*_operation.rb'
-  EnforceStepPrefix: true  # Require step_ prefix for step methods
 
 RailsHmvc/Operations/BusinessLogicOnly:
   Description: 'Operations should not contain direct model calls in call method'
   Enabled: true
   Include:
     - 'app/operations/**/*_operation.rb'
-  AllowedMethods: ['find', 'find_by']  # Simple finds are OK
 
 # ─────────────────────────────────────────────────────────────────────────────
 # FORMS COPS
@@ -158,7 +157,6 @@ RailsHmvc/Forms/ValidationOnly:
   Enabled: true
   Include:
     - 'app/forms/**/*_form.rb'
-  AllowedMethods: ['validates', 'validate', 'attribute', 'valid!', 'errors']
 
 RailsHmvc/Forms/NoDatabaseInteraction:
   Description: 'Form classes should not interact with database'
@@ -175,14 +173,12 @@ RailsHmvc/Controllers/NoBusinessLogic:
   Enabled: true
   Include:
     - 'app/controllers/**/*_controller.rb'
-  AllowedMethods: ['render', 'redirect_to', 'head', 'params']
 
 RailsHmvc/Controllers/DelegateToOperations:
   Description: 'Controller actions should delegate to Operations'
   Enabled: true
   Include:
     - 'app/controllers/**/*_controller.rb'
-  EnforceForActions: ['create', 'update', 'destroy']  # Must use operations
 
 # ─────────────────────────────────────────────────────────────────────────────
 # MODELS COPS
@@ -195,5 +191,22 @@ RailsHmvc/Models/ConcernsLocation:
     - 'app/models/*.rb'
   Exclude:
     - 'app/models/concerns/**/*'
-  MaxMethodLines: 5      # Methods longer than this should be in concerns
-  MaxModelMethods: 8     # Models with more methods should use concerns
+
+# ============================================================================
+# PROJECT SPECIFIC CUSTOMIZATIONS
+# ============================================================================
+# Uncomment and customize these rules based on your project needs:
+
+# # Disable specific cops for legacy code
+# RailsHmvc/Operations/StepMethods:
+#   Exclude:
+#     - 'app/operations/legacy/**/*'
+
+# # Customize metrics for specific directories
+# Metrics/ClassLength:
+#   Exclude:
+#     - 'app/operations/complex/**/*'
+
+# # Allow specific patterns for your domain
+# RailsHmvc/Forms/ValidationOnly:
+#   AllowedMethods: ['validates', 'validate', 'attribute', 'custom_method']

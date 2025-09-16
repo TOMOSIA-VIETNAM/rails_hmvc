@@ -5,16 +5,29 @@ require 'rails'
 require 'active_model'
 require 'active_model_serializers'
 
+# Load RuboCop extension if RuboCop is available
+if defined?(RuboCop) || (begin
+                            require 'rubocop'
+                            true
+                          rescue LoadError
+                            false
+                          end)
+  require_relative 'rubocop-rails-hmvc'
+end
+
 module RailsHmvc
   class Error < StandardError; end
 
-  class Railtie < Rails::Railtie
-    generators do
-      require_relative "generators/hmvc/generator_helpers"
-      require_relative "generators/hmvc/init/init_generator"
-      require_relative "generators/hmvc/form/form_generator"
-      require_relative "generators/hmvc/operation/operation_generator"
-      require_relative "generators/hmvc/controller/controller_generator"
+  if defined?(Rails::Railtie)
+    class Railtie < Rails::Railtie
+      generators do
+        require_relative 'generators/hmvc/generator_helpers'
+        require_relative 'generators/hmvc/init/init_generator'
+        require_relative 'generators/hmvc/form/form_generator'
+        require_relative 'generators/hmvc/operation/operation_generator'
+        require_relative 'generators/hmvc/controller/controller_generator'
+        require_relative 'generators/hmvc/rubocop/rubocop_generator'
+      end
     end
-  end if defined?(Rails::Railtie)
+  end
 end

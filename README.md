@@ -3,7 +3,7 @@
 [![Gem Version](https://badge.fury.io/rb/rails_hmvc.svg)](https://badge.fury.io/rb/rails_hmvc)
 [![Ruby Style Guide](https://img.shields.io/badge/code_style-rubocop-brightgreen.svg)](https://github.com/rubocop/rubocop)
 
-A Ruby gem that implements the HMVC (Hierarchical Model-View-Controller) architecture pattern for Rails applications through a set of generators. This gem helps create standardized components (controllers, operations, forms, serializers, views) with proper separation of concerns.
+A Ruby gem that implements the HMVC (Hierarchical Model-View-Controller) architecture pattern for Rails applications through a set of generators. This gem helps create standardized components (controllers, operations, forms, serializers, views) with proper separation of concerns and includes custom RuboCop cops to enforce architectural conventions.
 
 ## Architecture Overview
 
@@ -280,6 +280,187 @@ app/views/admin/products/
   </div>
 </div>
 ```
+
+## RuboCop Integration
+
+Rails HMVC includes custom RuboCop cops to enforce architectural conventions and maintain code quality.
+
+### Setup RuboCop Configuration
+
+**Option 1: Auto-generate configuration (Recommended)**
+
+```bash
+# Generate optimized .rubocop.yml for Rails HMVC
+rails g rails_hmvc:rubocop
+
+# Or force overwrite existing config
+rails g rails_hmvc:rubocop --force
+
+# Important: Update TargetRubyVersion to match your Ruby version
+# Edit .rubocop.yml and set: TargetRubyVersion: 3.2 (for Ruby 3.2.x)
+```
+
+**Option 2: Manual setup**
+
+Add to your `.rubocop.yml`:
+
+```yaml
+require:
+  - rails_hmvc
+
+plugins:
+  - rubocop-rails
+  - rubocop-rspec
+
+AllCops:
+  TargetRubyVersion: 3.2  # Update to match your Ruby version
+  NewCops: enable
+
+# Enable HMVC cops
+RailsHmvc/Operations/CallMethod:
+  Enabled: true
+  Include:
+    - 'app/operations/**/*_operation.rb'
+
+RailsHmvc/Operations/StepMethods:
+  Enabled: true
+  Include:
+    - 'app/operations/**/*_operation.rb'
+
+RailsHmvc/Forms/ValidationOnly:
+  Enabled: true
+  Include:
+    - 'app/forms/**/*_form.rb'
+
+RailsHmvc/Controllers/NoBusinessLogic:
+  Enabled: true
+  Include:
+    - 'app/controllers/**/*_controller.rb'
+```
+
+**Install required gems:**
+
+```bash
+bundle add rubocop-rails rubocop-rspec --group development
+```
+
+### Available Cops
+
+- **Operations/CallMethod**: Ensures operations have a `call` method
+- **Operations/StepMethods**: Enforces step method pattern in operations
+- **Operations/BusinessLogicOnly**: Prevents direct model calls in `call` method
+- **Forms/ValidationOnly**: Ensures forms only contain validation logic
+- **Forms/NoDatabaseInteraction**: Prevents database calls in forms
+- **Controllers/NoBusinessLogic**: Prevents business logic in controllers
+- **Controllers/DelegateToOperations**: Enforces operation delegation
+- **Models/ConcernsLocation**: Suggests moving complex logic to concerns
+
+### Usage
+
+**Basic Commands:**
+
+```bash
+# Run ALL RuboCop cops (including HMVC)
+bundle exec rubocop
+
+# Run ALL HMVC cops (all departments)
+bundle exec rubocop --only RailsHmvc/Operations,RailsHmvc/Forms,RailsHmvc/Controllers,RailsHmvc/Models
+
+# Use shortcut script (if available)
+./bin/rubocop-hmvc
+
+# Run specific HMVC departments
+bundle exec rubocop --only RailsHmvc/Operations
+bundle exec rubocop --only RailsHmvc/Forms
+bundle exec rubocop --only RailsHmvc/Controllers
+
+# Run specific individual cops
+bundle exec rubocop --only RailsHmvc/Operations/CallMethod
+bundle exec rubocop --only RailsHmvc/Forms/ValidationOnly
+```
+
+**Auto-Fix Commands:**
+
+```bash
+# Safe auto-fix for all cops
+bundle exec rubocop --safe-auto-correct
+
+# Auto-fix only HMVC violations (all departments)
+bundle exec rubocop --only RailsHmvc/Operations,RailsHmvc/Forms,RailsHmvc/Controllers,RailsHmvc/Models --safe-auto-correct
+
+# Use shortcut script with auto-fix
+./bin/rubocop-hmvc --safe-auto-correct
+
+# Auto-fix specific departments
+bundle exec rubocop --only RailsHmvc/Operations --safe-auto-correct
+```
+
+**Development Workflow:**
+
+```bash
+# Quick check specific files
+bundle exec rubocop --only RailsHmvc/Operations app/operations/user/create_operation.rb
+
+# Check all operations directory
+bundle exec rubocop --only RailsHmvc/Operations app/operations/
+
+# Pre-commit check (recommended) - all HMVC violations
+./bin/rubocop-hmvc app/
+
+# Check multiple departments
+bundle exec rubocop --only RailsHmvc/Operations,RailsHmvc/Forms app/
+```
+
+**Configuration Notes:**
+
+- Ensure `TargetRubyVersion` matches your Ruby version (e.g., `3.2` for Ruby 3.2.x)
+- Department pattern `--only RailsHmvc` is **not supported** (RuboCop limitation)
+- Use department list for all HMVC cops: `RailsHmvc/Operations,RailsHmvc/Forms,RailsHmvc/Controllers,RailsHmvc/Models`
+- Individual department patterns work: `--only RailsHmvc/Operations`
+
+### Troubleshooting
+
+**Common Issues:**
+
+1. **"Unrecognized cop or department: RailsHmvc"**
+   ```bash
+   # Check if gem is loaded
+   bundle exec gem list | grep rails_hmvc
+
+   # Verify require path in .rubocop.yml
+   require:
+     - rails_hmvc  # NOT ./lib/rubocop-rails-hmvc
+   ```
+
+2. **"Unexpected token" syntax errors**
+   ```bash
+   # Update Ruby version in .rubocop.yml
+   AllCops:
+     TargetRubyVersion: 3.2  # Match your Ruby version
+   ```
+
+3. **Department `--only RailsHmvc` doesn't work**
+   ```bash
+   # Use department list instead
+   bundle exec rubocop --only RailsHmvc/Operations,RailsHmvc/Forms,RailsHmvc/Controllers,RailsHmvc/Models
+
+   # Or use shortcut script
+   ./bin/rubocop-hmvc
+   ```
+
+4. **Debug cops loading**
+   ```ruby
+   # Create debug script
+   require 'rubocop'
+   require 'rails_hmvc'
+
+   registry = RuboCop::Cop::Registry.global
+   hmvc_cops = registry.cops.select { |cop| cop.cop_name.start_with?('RailsHmvc') }
+   puts "Found #{hmvc_cops.count} HMVC cops"
+   hmvc_cops.each { |cop| puts "- #{cop.cop_name}" }
+   ```
+
+See [RUBOCOP_HMVC.md](RUBOCOP_HMVC.md) for detailed documentation.
 
 ## Component Workflows
 
