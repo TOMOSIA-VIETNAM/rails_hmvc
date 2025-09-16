@@ -30,6 +30,11 @@ module RailsHmvc
       class_option :views, type: :boolean, default: false, desc: "Generate views for the controller"
       class_option :skip_views, type: :boolean, default: false, desc: "Skip generating views"
 
+      # Routes options
+      class_option :routes, type: :boolean, default: false, desc: "Generate routes for the controller"
+      class_option :skip_routes, type: :boolean, default: false, desc: "Skip generating routes"
+      class_option :resource_routes, type: :boolean, default: true, desc: "Use resource routes (true) or individual routes (false)"
+
       def initialize(*args)
         super
         @config = load_config_for_type(options[:type])
@@ -37,6 +42,7 @@ module RailsHmvc
         @operations_config = @config["operations"]
         @forms_config = @config["forms"]
         @views_config = @config["views"] || {}
+        @routes_config = @config["routes"] || {}
         set_defaults_from_config
       end
 
@@ -102,6 +108,25 @@ module RailsHmvc
         say "Views created at #{views_path}/", :green
       end
 
+      def create_routes
+        return if skip_routes?
+
+        routes_path = "config/routes.rb"
+        unless File.exist?(routes_path)
+          say "⚠️  Routes file not found at #{routes_path}", :yellow
+          return
+        end
+
+        # Generate routes based on configuration
+        routes_content = generate_routes_content
+
+        # Insert routes into routes.rb file
+        insert_routes_into_file(routes_path, routes_content)
+
+        say "✅ Routes added to #{routes_path}", :green
+        say "📝 Added: #{routes_content.strip}", :blue
+      end
+
       private
 
       def set_defaults_from_config
@@ -136,6 +161,11 @@ module RailsHmvc
         class_name
       end
 
+      def namespace_path
+        # Extract namespace from class_path if it exists
+        class_path.empty? ? "" : class_path.join("/")
+      end
+
       def actions
         return @options[:actions].split(",") if @options[:actions].is_a?(String)
 
@@ -160,6 +190,16 @@ module RailsHmvc
 
         # Auto-generate views for web type unless explicitly skipped
         !(@options[:type] == "web" && @views_config["generate"] != false)
+      end
+
+      def skip_routes?
+        return true if @options[:skip_routes]
+        return false if @options[:routes]
+
+        # Check config-based auto-generation
+        return false if @routes_config["generate"]
+
+        true
       end
 
       def operation_class_for(action)
@@ -294,6 +334,151 @@ module RailsHmvc
 
       def singular_human_name_helper
         singular_name.humanize
+      end
+
+      # Routes generation methods
+      def generate_routes_content
+        if use_resource_routes?
+          generate_resource_routes
+        else
+          generate_individual_routes
+        end
+      end
+
+      def use_resource_routes?
+        return @options[:resource_routes] if @options.key?(:resource_routes)
+        return @routes_config["resource_routes"] if @routes_config.key?("resource_routes")
+
+        # Default: use resource routes for standard CRUD actions
+        standard_actions = %w[index show new edit create update destroy]
+        (actions & standard_actions).size >= 3
+      end
+
+      def generate_resource_routes
+        resource_name = plural_name
+
+        # Handle namespaced routes
+        if namespace_path.present?
+          indent = "  "
+          namespace_parts = namespace_path.split("/")
+
+          # Create nested namespace structure
+          route_start = namespace_parts.map { |ns| "#{indent}namespace :#{ns} do" }.join("\n")
+          route_content = "#{indent}  resources :#{resource_name}#{route_options}"
+          route_end = namespace_parts.map { indent + "end" }.reverse.join("\n")
+
+          "#{route_start}\n#{route_content}\n#{route_end}"
+        else
+          "  resources :#{resource_name}#{route_options}"
+        end
+      end
+
+      def generate_individual_routes
+        routes = []
+        indent = namespace_indent
+
+        actions.each do |action|
+          routes << generate_individual_route(action, indent)
+        end
+
+        if namespace_path.present?
+          wrap_with_namespaces(routes.join("\n"))
+        else
+          routes.join("\n")
+        end
+      end
+
+      def route_options
+        # Add only: option if not all standard actions are present
+        standard_actions = %w[index show new edit create update destroy]
+        used_actions = actions & standard_actions
+
+        return "" if used_actions.sort == standard_actions.sort
+
+        ", only: #{used_actions.inspect}"
+      end
+
+      def generate_individual_route(action, indent)
+        case action
+        when "index"
+          "#{indent}get '#{plural_name}', to: '#{controller_route_path}#index'"
+        when "show"
+          "#{indent}get '#{plural_name}/:id', to: '#{controller_route_path}#show'"
+        when "new"
+          "#{indent}get '#{plural_name}/new', to: '#{controller_route_path}#new'"
+        when "edit"
+          "#{indent}get '#{plural_name}/:id/edit', to: '#{controller_route_path}#edit'"
+        when "create"
+          "#{indent}post '#{plural_name}', to: '#{controller_route_path}#create'"
+        when "update"
+          "#{indent}patch '#{plural_name}/:id', to: '#{controller_route_path}#update'\n" \
+          "#{indent}put '#{plural_name}/:id', to: '#{controller_route_path}#update'"
+        when "destroy"
+          "#{indent}delete '#{plural_name}/:id', to: '#{controller_route_path}#destroy'"
+        else
+          # Custom action - assume it's a member action
+          "#{indent}get '#{plural_name}/:id/#{action}', to: '#{controller_route_path}##{action}'"
+        end
+      end
+
+      def controller_route_path
+        if namespace_path.present?
+          "#{namespace_path}/#{plural_name}"
+        else
+          plural_name
+        end
+      end
+
+      def namespace_indent
+        if namespace_path.present?
+          "  " + ("  " * namespace_path.split("/").size)
+        else
+          "  "
+        end
+      end
+
+      def wrap_with_namespaces(content)
+        return content if namespace_path.blank?
+
+        indent = "  "
+        namespace_parts = namespace_path.split("/")
+
+        # Create nested namespace structure
+        route_start = namespace_parts.map { |ns| "#{indent}namespace :#{ns} do" }.join("\n")
+        route_end = namespace_parts.map { indent + "end" }.reverse.join("\n")
+
+        "#{route_start}\n#{content}\n#{route_end}"
+      end
+
+      def insert_routes_into_file(routes_path, routes_content)
+        # Read current routes file
+        routes_file_content = File.read(routes_path)
+
+        # Find insertion point - after the first "Rails.application.routes.draw do"
+        insertion_point = routes_file_content.index("Rails.application.routes.draw do")
+
+        if insertion_point.nil?
+          say "⚠️  Could not find 'Rails.application.routes.draw do' in #{routes_path}", :yellow
+          return
+        end
+
+        # Find end of the line
+        line_end = routes_file_content.index("\n", insertion_point)
+        insertion_index = line_end + 1
+
+        # Check if routes already exist
+        if routes_file_content.include?(routes_content.strip)
+          say "ℹ️  Routes already exist, skipping", :blue
+          return
+        end
+
+        # Insert routes content
+        new_content = routes_file_content[0...insertion_index] +
+                     "\n" + routes_content + "\n" +
+                     routes_file_content[insertion_index..-1]
+
+        # Write back to file
+        File.write(routes_path, new_content)
       end
     end
   end

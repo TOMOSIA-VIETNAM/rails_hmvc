@@ -197,6 +197,10 @@ web:
 - `--skip_form`: Skip generating forms
 - `--views`: Force generate views for the controller
 - `--skip_views`: Skip generating views (even for web type)
+- `--routes`: Generate routes automatically
+- `--skip_routes`: Skip route generation
+- `--resource-routes`: Use resource routes (default: true)
+- `--no-resource-routes`: Use individual routes
 
 ### Operation Generator Options
 
@@ -279,6 +283,109 @@ app/views/admin/products/
     </table>
   </div>
 </div>
+```
+
+## Routes Generation
+
+Rails HMVC provides automatic route generation for controllers with the following features:
+
+### When Routes Are Generated
+
+1. **Explicitly with --routes option:**
+   ```bash
+   rails g rails_hmvc:controller products --type=web --routes
+   # Generates: resources :products
+   ```
+
+2. **Auto-generated based on config:**
+   ```yaml
+   # rails_hmvc.yml
+   web:
+     routes:
+       generate: true
+       resource_routes: true
+   ```
+
+3. **Skipped with --skip-routes:**
+   ```bash
+   rails g rails_hmvc:controller articles --routes --skip-routes
+   ```
+
+### Route Types
+
+#### **Resource Routes (Default)**
+```bash
+rails g rails_hmvc:controller products --routes
+```
+Generated:
+```ruby
+resources :products
+```
+
+#### **Namespaced Routes**
+```bash
+rails g rails_hmvc:controller api/v1/users --type=api --routes
+```
+Generated:
+```ruby
+namespace :api do
+  namespace :v1 do
+    resources :users, only: ["index", "show", "create", "update", "destroy"]
+  end
+end
+```
+
+#### **Individual Routes**
+```bash
+rails g rails_hmvc:controller books --actions=index,show,search --routes --no-resource-routes
+```
+Generated:
+```ruby
+get 'books', to: 'books#index'
+get 'books/:id', to: 'books#show'
+get 'books/:id/search', to: 'books#search'
+```
+
+### Route Options
+
+- `--routes`: Enable route generation
+- `--skip-routes`: Skip route generation
+- `--resource-routes`: Use resource routes (default: true)
+- `--no-resource-routes`: Use individual routes
+
+### Configuration
+
+```yaml
+# config/rails_hmvc.yml
+api:
+  routes:
+    generate: true          # Auto-generate routes
+    resource_routes: true   # Use resource routes
+
+web:
+  routes:
+    generate: true          # Auto-generate routes
+    resource_routes: true   # Use resource routes
+```
+
+### Examples
+
+**Standard Web Controller:**
+```bash
+rails g rails_hmvc:controller posts --type=web --routes
+# Creates: resources :posts
+```
+
+**API with Limited Actions:**
+```bash
+rails g rails_hmvc:controller api/articles --actions=index,show --routes
+# Creates: namespace :api do resources :articles, only: ["index", "show"] end
+```
+
+**Custom Actions:**
+```bash
+rails g rails_hmvc:controller reports --actions=index,generate,download --routes
+# Creates individual routes for each action
 ```
 
 ## RuboCop Integration

@@ -20,6 +20,9 @@ api:
   forms:
     parent: MainForm
     actions: ['create', 'update']
+  routes:
+    generate: true
+    resource_routes: true
 
 # ─────────────────────────────────────────────────────────────────────────────
 # WEB configuration
@@ -39,3 +42,6 @@ web:
     generate: true
     actions: ['index', 'show', 'new', 'edit']
     partials: ['form']
+  routes:
+    generate: true
+    resource_routes: true
