@@ -1,0 +1,35 @@
+<%% if @<%= @singular_name %>.errors.any? %>
+  <div class="alert alert-danger" role="alert">
+    <h6><%%= pluralize(@<%= @singular_name %>.errors.count, "error") %> prohibited this <%= @singular_name %> from being saved:</h6>
+    <ul class="mb-0">
+      <%% @<%= @singular_name %>.errors.full_messages.each do |message| %>
+        <li><%%= message %></li>
+      <%% end %>
+    </ul>
+  </div>
+<%% end %>
+
+<div class="mb-3">
+  <%%= form.label :name, class: "form-label" %>
+  <%%= form.text_field :name, class: "form-control #{'is-invalid' if @<%= @singular_name %>.errors[:name].any?}" %>
+  <%% if @<%= @singular_name %>.errors[:name].any? %>
+    <div class="invalid-feedback">
+      <%%= @<%= @singular_name %>.errors[:name].first %>
+    </div>
+  <%% end %>
+</div>
+
+<div class="mb-3">
+  <%%= form.label :description, class: "form-label" %>
+  <%%= form.text_area :description, rows: 4, class: "form-control #{'is-invalid' if @<%= @singular_name %>.errors[:description].any?}" %>
+  <%% if @<%= @singular_name %>.errors[:description].any? %>
+    <div class="invalid-feedback">
+      <%%= @<%= @singular_name %>.errors[:description].first %>
+    </div>
+  <%% end %>
+</div>
+
+<div class="d-flex justify-content-end">
+  <%%= form.submit class: "btn btn-primary" %>
+  <%%= link_to "Cancel", <%= @namespace_path %>_<%= @plural_name %>_path, class: "btn btn-outline-secondary ms-2" %>
+</div>

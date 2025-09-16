@@ -35,3 +35,7 @@ web:
   forms:
     parent: MainForm
     actions: ['create', 'update', 'new', 'edit']
+  views:
+    generate: true
+    actions: ['index', 'show', 'new', 'edit']
+    partials: ['form']
