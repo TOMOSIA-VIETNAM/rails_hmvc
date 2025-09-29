@@ -114,6 +114,11 @@ module RailsHmvc
 
         @serializer_attributes.map { |attr| "  attribute :#{attr}" }.join("\n")
       end
+
+      def namespace_path
+        # Extract namespace from class_path if it exists
+        class_path.empty? ? "" : class_path.join("/")
+      end
     end
   end
 end

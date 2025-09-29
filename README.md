@@ -132,16 +132,29 @@ $ rails g rails_hmvc:operation v1/checkout/complete --steps=validate,process_pay
 
 ### Generate Forms
 
-Create a form with attributes:
+**⚠️ Important**: Forms must be generated with specific RESTful actions. Single form generation is not allowed.
+
+Create a form for specific action:
 
 ```bash
-$ rails g rails_hmvc:form v1/auth/login --attributes=email:string,password:string
+$ rails g rails_hmvc:form products --actions=create --attributes=name:string,price:decimal
 ```
 
 Generate multiple forms:
 
 ```bash
-$ rails g rails_hmvc:form v1/products --actions=create,update --attributes=name:string,price:decimal
+$ rails g rails_hmvc:form products --actions=create,update --attributes=name:string,price:decimal
+```
+
+Generate forms for all CRUD actions:
+
+```bash
+$ rails g rails_hmvc:form users --actions=create,update,new,edit --attributes=name:string,email:string
+```
+
+**❌ This will show an error:**
+```bash
+$ rails g rails_hmvc:form products  # Missing --actions
 ```
 
 ### Generate Serializers
@@ -215,6 +228,8 @@ web:
 - `--actions`: List of controller actions
 - `--skip_operation`: Skip generating operations
 - `--skip_form`: Skip generating forms
+- `--skip_serializer`: Skip generating serializers
+- `--attributes`: List of serializer attributes (name,description)
 - `--views`: Force generate views for the controller
 - `--skip_views`: Skip generating views (even for web type)
 - `--routes`: Generate routes automatically
@@ -230,7 +245,9 @@ web:
 ### Form Generator Options
 
 - `--attributes`: List of form attributes (name:type format)
-- `--actions`: List of forms to generate
+- `--actions`: **Required** - List of RESTful actions to generate forms for (create,update,new,edit)
+
+**Important**: The `--actions` option is mandatory. Available actions: `create`, `update`, `new`, `edit`
 
 ### Views Features
 
@@ -305,6 +322,76 @@ app/views/admin/products/
 </div>
 ```
 
+## Serializers Generation
+
+Rails HMVC provides automatic serializer generation for API responses with the following features:
+
+### When Serializers Are Generated
+
+1. **Auto-generated for API controllers based on config:**
+   ```bash
+   rails g rails_hmvc:controller products --type=api
+   # Auto-generates serializers if configured in rails_hmvc.yml
+   ```
+
+2. **With explicit attributes:**
+   ```bash
+   rails g rails_hmvc:controller users --type=api --attributes=name,email,phone
+   # Generates serializers with specified attributes
+   ```
+
+3. **Skipped with --skip-serializer:**
+   ```bash
+   rails g rails_hmvc:controller products --type=api --skip-serializer
+   ```
+
+### Generated Serializer Structure
+
+For a controller like `api/v1/products`, serializers are generated at:
+```
+app/serializers/api/v1/products/
+├── index_serializer.rb    # For listing products
+├── show_serializer.rb     # For single product detail
+├── create_serializer.rb   # For create response
+└── update_serializer.rb   # For update response
+```
+
+### Example Generated Serializer
+
+```ruby
+# app/serializers/products/index_serializer.rb
+class IndexSerializer < MainSerializer
+  attribute :id
+  attribute :name
+  attribute :price
+  attribute :description
+end
+```
+
+### Configuration
+
+```yaml
+# config/rails_hmvc.yml
+api:
+  serializers:
+    parent: MainSerializer                           # Parent class
+    actions: ['index', 'show', 'create', 'update']  # Actions to generate
+    skip_actions: ['destroy']                        # Actions to skip
+
+web:
+  serializers:
+    parent: MainSerializer
+    actions: ['index', 'show']                       # Limited for web
+```
+
+### Serializer Features
+
+- **Automatic Attributes**: Generated based on `--attributes` option
+- **Namespaced**: Follows controller namespace structure
+- **Configurable Actions**: Only generates for specified actions
+- **Parent Class**: Inherits from configured parent serializer
+- **Empty by Default**: Clean templates ready for customization
+
 ## Routes Generation
 
 Rails HMVC provides automatic route generation for controllers with the following features:
@@ -378,14 +465,20 @@ get 'books/:id/search', to: 'books#search'
 ```yaml
 # config/rails_hmvc.yml
 api:
+  serializers:
+    parent: MainSerializer      # Parent serializer class
+    actions: ['index', 'show', 'create', 'update']  # Actions to generate serializers for
   routes:
-    generate: true          # Auto-generate routes
-    resource_routes: true   # Use resource routes
+    generate: true              # Auto-generate routes
+    resource_routes: true       # Use resource routes
 
 web:
+  serializers:
+    parent: MainSerializer      # Parent serializer class
+    actions: ['index', 'show']  # Actions to generate serializers for
   routes:
-    generate: true          # Auto-generate routes
-    resource_routes: true   # Use resource routes
+    generate: true              # Auto-generate routes
+    resource_routes: true       # Use resource routes
 ```
 
 ### Examples
@@ -406,6 +499,18 @@ rails g rails_hmvc:controller api/articles --actions=index,show --routes
 ```bash
 rails g rails_hmvc:controller reports --actions=index,generate,download --routes
 # Creates individual routes for each action
+```
+
+**API Controller with Serializers:**
+```bash
+rails g rails_hmvc:controller products --type=api --routes --attributes=name,price,description
+# Creates controller + operations + forms + serializers + routes
+```
+
+**Skip Serializers:**
+```bash
+rails g rails_hmvc:controller products --type=api --skip-serializer
+# Creates controller but skips serializers generation
 ```
 
 ## RuboCop Integration

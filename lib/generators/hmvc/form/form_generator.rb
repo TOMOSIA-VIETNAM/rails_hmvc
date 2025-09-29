@@ -23,7 +23,15 @@ module RailsHmvc
       end
 
       def create_forms
-        return create_single_form if actions.empty?
+        if actions.empty?
+          say "❌ Error: No actions specified for form generation.", :red
+          say "Forms must be generated for specific RESTful actions.", :yellow
+          say "Usage examples:", :blue
+          say "  rails g rails_hmvc:form #{name} --actions=create,update", :blue
+          say "  rails g rails_hmvc:form #{name} --actions=create", :blue
+          say "Available actions: create, update, new, edit", :blue
+          exit 1
+        end
 
         actions.each do |action|
           create_form_for(action)
@@ -45,13 +53,6 @@ module RailsHmvc
         @options[:actions]
       end
 
-      def create_single_form
-        template(
-          'form.rb',
-          "app/forms/#{namespace_path}/#{form_path}.rb"
-        )
-      end
-
       def create_form_for(action)
         @current_action = action
         template(
@@ -60,20 +61,8 @@ module RailsHmvc
         )
       end
 
-      def form_path
-        if @current_action
-          "#{plural_name}/#{@current_action}_form"
-        else
-          "#{form_class_name.underscore}_form"
-        end
-      end
-
       def form_class_name
-        if @current_action
-          @current_action.camelize
-        else
-          file_name.camelize
-        end
+        @current_action.camelize
       end
 
       def parent_form_class
@@ -101,6 +90,11 @@ module RailsHmvc
             "  attribute :#{attr[:prop]}, :#{attr[:type]}"
           end
         end.join("\n")
+      end
+
+      def namespace_path
+        # Extract namespace from class_path if it exists
+        class_path.empty? ? "" : class_path.join("/")
       end
     end
   end

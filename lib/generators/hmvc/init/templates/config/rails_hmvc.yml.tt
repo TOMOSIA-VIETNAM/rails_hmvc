@@ -20,6 +20,9 @@ api:
   forms:
     parent: MainForm
     actions: ['create', 'update']
+  serializers:
+    parent: MainSerializer
+    actions: ['index', 'show', 'create', 'update']
   routes:
     generate: true
     resource_routes: true
@@ -38,6 +41,9 @@ web:
   forms:
     parent: MainForm
     actions: ['create', 'update', 'new', 'edit']
+  serializers:
+    parent: MainSerializer
+    actions: ['index', 'show']
   views:
     generate: true
     actions: ['index', 'show', 'new', 'edit']

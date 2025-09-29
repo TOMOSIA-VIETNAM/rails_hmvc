@@ -93,8 +93,10 @@ module RailsHmvc
       def create_serializers
         return if skip_serializer?
 
-        serializer_actions = @serializers_config['actions']
+        serializer_actions = @serializers_config['actions'] || []
         skip_actions = @serializers_config['skip_actions'] || []
+
+        return if serializer_actions.empty?
 
         serializer_actions.each do |action|
           next if skip_actions.include?(action)
@@ -107,6 +109,8 @@ module RailsHmvc
                                      "--attributes=#{@options[:attributes]}"
                                    ], destination_root: destination_root)
         end
+
+        say "Serializers created for #{plural_name}", :green
       end
 
       def create_views
@@ -168,6 +172,9 @@ module RailsHmvc
 
         # Form options
         @options[:parent_form] ||= @forms_config["parent"]
+
+        # Serializer options
+        @options[:parent_serializer] ||= @serializers_config["parent"]
       end
 
       def parent_controller_class
