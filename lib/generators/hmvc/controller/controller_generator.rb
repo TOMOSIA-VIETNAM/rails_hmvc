@@ -35,6 +35,11 @@ module RailsHmvc
       class_option :skip_routes, type: :boolean, default: false, desc: "Skip generating routes"
       class_option :resource_routes, type: :boolean, default: true, desc: "Use resource routes (true) or individual routes (false)"
 
+      # Serializer options
+      class_option :skip_serializer, type: :boolean, default: false, desc: 'Skip associating with serializers'
+      class_option :parent_serializer, type: :string, desc: 'Parent serializer class'
+      class_option :attributes, type: :string, desc: 'List of serializer attributes in the format: name'
+
       def initialize(*args)
         super
         @config = load_config_for_type(options[:type])
@@ -43,6 +48,7 @@ module RailsHmvc
         @forms_config = @config["forms"]
         @views_config = @config["views"] || {}
         @routes_config = @config["routes"] || {}
+        @serializers_config = @config["serializers"] || {}
         set_defaults_from_config
       end
 
@@ -79,6 +85,25 @@ module RailsHmvc
                                      "#{namespace_path}/#{plural_name}/#{action}",
                                      "--type=#{@options[:type]}",
                                      "--parent=#{@options[:parent_form]}",
+                                     "--attributes=#{@options[:attributes]}"
+                                   ], destination_root: destination_root)
+        end
+      end
+
+      def create_serializers
+        return if skip_serializer?
+
+        serializer_actions = @serializers_config['actions']
+        skip_actions = @serializers_config['skip_actions'] || []
+
+        serializer_actions.each do |action|
+          next if skip_actions.include?(action)
+          next unless actions.include?(action)
+
+          Rails::Generators.invoke('rails_hmvc:serializer', [
+                                     "#{namespace_path}/#{plural_name}/#{action}",
+                                     "--type=#{@options[:type]}",
+                                     "--parent=#{@options[:parent_serializer]}",
                                      "--attributes=#{@options[:attributes]}"
                                    ], destination_root: destination_root)
         end
@@ -202,6 +227,10 @@ module RailsHmvc
         true
       end
 
+      def skip_serializer?
+        @options[:skip_serializer]
+      end
+
       def operation_class_for(action)
         "#{resource_class}::#{action.camelize}Operation"
       end
@@ -234,7 +263,7 @@ module RailsHmvc
       end
 
       def render_api_response(action)
-        return "head :no_content" if skip_operation?
+        return 'head :no_content' if skip_operation?
 
         case action
         when "index"
@@ -249,9 +278,9 @@ module RailsHmvc
           "      resource: nil,\n" \
           "      serializer: '',\n" \
           "      status: #{status}\n" \
-          "    )"
+          '    )'
         else
-          "head :no_content"
+          'head :no_content'
         end
       end
 
