@@ -42,14 +42,23 @@ module RailsHmvc
 
       def initialize(*args)
         super
-        @config = load_config_for_type(options[:type])
+        # Use command line type or fallback to config file type
+        explicit_type = options[:type]
+        if explicit_type
+          @config = load_config_for_type(explicit_type)
+        else
+          full_config = load_config
+          default_type = full_config["type"] || "api"
+          @config = load_config_for_type(default_type)
+        end
+
         @controllers_config = @config["controllers"]
         @operations_config = @config["operations"]
         @forms_config = @config["forms"]
         @views_config = @config["views"] || {}
         @routes_config = @config["routes"] || {}
         @serializers_config = @config["serializers"] || {}
-        set_defaults_from_config
+        set_defaults_from_config(explicit_type)
       end
 
       def create_controller
@@ -61,33 +70,45 @@ module RailsHmvc
       def create_operations
         return if skip_operation?
 
-        actions.each do |action|
-          Rails::Generators.invoke("rails_hmvc:operation", [
-                                     "#{namespace_path}/#{plural_name}/#{action}",
-                                     "--type=#{@options[:type]}",
-                                     "--parent=#{@options[:parent_operation]}",
-                                     "--steps=#{@options[:steps]}"
-                                   ], destination_root: destination_root)
-        end
+        operation_actions = @operations_config["actions"] || []
+        skip_actions = @operations_config["skip_actions"] || []
+
+        # Filter actions to only include those that exist in controller actions
+        available_actions = operation_actions - skip_actions
+        controller_operation_actions = available_actions.select { |action| actions.include?(action) }
+
+        return if controller_operation_actions.empty?
+
+        # Generate all operations in one call
+        Rails::Generators.invoke("rails_hmvc:operation", [
+                                   "#{namespace_path}/#{singular_name}",
+                                   "--actions=#{controller_operation_actions.join(',')}",
+                                   "--type=#{@options[:type]}",
+                                   "--parent=#{@options[:parent_operation]}",
+                                   "--steps=#{@options[:steps]}"
+                                 ], destination_root: destination_root)
       end
 
       def create_forms
         return if skip_form?
 
-        form_actions = @forms_config["actions"]
+        form_actions = @forms_config["actions"] || []
         skip_actions = @forms_config["skip_actions"] || []
 
-        form_actions.each do |action|
-          next if skip_actions.include?(action)
-          next unless actions.include?(action)
+        # Filter actions to only include those that exist in controller actions
+        available_actions = form_actions - skip_actions
+        controller_form_actions = available_actions.select { |action| actions.include?(action) }
 
-          Rails::Generators.invoke("rails_hmvc:form", [
-                                     "#{namespace_path}/#{plural_name}/#{action}",
-                                     "--type=#{@options[:type]}",
-                                     "--parent=#{@options[:parent_form]}",
-                                     "--attributes=#{@options[:attributes]}"
-                                   ], destination_root: destination_root)
-        end
+        return if controller_form_actions.empty?
+
+        # Generate all forms in one call
+        Rails::Generators.invoke("rails_hmvc:form", [
+                                   "#{namespace_path}/#{singular_name}",
+                                   "--actions=#{controller_form_actions.join(',')}",
+                                   "--type=#{@options[:type]}",
+                                   "--parent=#{@options[:parent_form]}",
+                                   "--attributes=#{@options[:attributes]}"
+                                 ], destination_root: destination_root)
       end
 
       def create_serializers
@@ -96,21 +117,22 @@ module RailsHmvc
         serializer_actions = @serializers_config['actions'] || []
         skip_actions = @serializers_config['skip_actions'] || []
 
-        return if serializer_actions.empty?
+        # Filter actions to only include those that exist in controller actions
+        available_actions = serializer_actions - skip_actions
+        controller_serializer_actions = available_actions.select { |action| actions.include?(action) }
 
-        serializer_actions.each do |action|
-          next if skip_actions.include?(action)
-          next unless actions.include?(action)
+        return if controller_serializer_actions.empty?
 
-          Rails::Generators.invoke('rails_hmvc:serializer', [
-                                     "#{namespace_path}/#{plural_name}/#{action}",
-                                     "--type=#{@options[:type]}",
-                                     "--parent=#{@options[:parent_serializer]}",
-                                     "--attributes=#{@options[:attributes]}"
-                                   ], destination_root: destination_root)
-        end
+        # Generate all serializers in one call
+        Rails::Generators.invoke('rails_hmvc:serializer', [
+                                   "#{namespace_path}/#{singular_name}",
+                                   "--actions=#{controller_serializer_actions.join(',')}",
+                                   "--type=#{@options[:type]}",
+                                   "--parent=#{@options[:parent_serializer]}",
+                                   "--attributes=#{@options[:attributes]}"
+                                 ], destination_root: destination_root)
 
-        say "Serializers created for #{plural_name}", :green
+        say "Serializers created for #{singular_name}", :green
       end
 
       def create_views
@@ -158,9 +180,11 @@ module RailsHmvc
 
       private
 
-      def set_defaults_from_config
+      def set_defaults_from_config(explicit_type = nil)
         @options = options.dup
-        @options[:type] ||= @config["type"]
+
+        # Use explicit type from command line or config type
+        @options[:type] = explicit_type || @config["type"]
 
         # Controller options
         @options[:parent]  ||= @controllers_config["parent"]

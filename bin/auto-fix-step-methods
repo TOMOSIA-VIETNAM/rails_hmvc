@@ -1,0 +1,80 @@
+#!/usr/bin/env ruby
+# Auto-fix step method prefixes in operations
+
+require 'fileutils'
+
+def fix_step_methods(file_path)
+  return unless File.exist?(file_path)
+  return unless file_path.match?(/operations.*_operation\.rb$/)
+
+  content = File.read(file_path)
+  original_content = content.dup
+
+  # Pattern to find call method
+  call_method_pattern = /def call\s*\n(.*?)(?=\n\s*(?:private|def|\z))/m
+
+  match = content.match(call_method_pattern)
+  return unless match
+
+  call_body = match[1]
+
+  # Find method calls that need step_ prefix
+  method_calls = call_body.scan(/^\s+([a-z_][a-z0-9_]*)\s*(?:\(.*?\))?$/)
+
+  method_calls.each do |method_call_match|
+    method_name = method_call_match[0]
+    next if method_name.start_with?('step_')
+
+    # Skip common methods
+    skip_methods = %w[
+      puts print p pp raise fail return next break super
+      validates validate attr_reader attr_writer attr_accessor
+    ]
+    next if skip_methods.include?(method_name)
+    next if method_name.end_with?('?', '!', '=')
+
+    # Replace method call with step_ prefix
+    old_pattern = /^(\s+)#{Regexp.escape(method_name)}(\s*(?:\(.*?\))?)\s*$/
+    new_replacement = "\\1step_#{method_name}\\2"
+
+    content = content.gsub(old_pattern, new_replacement)
+  end
+
+  if content != original_content
+    File.write(file_path, content)
+    puts "✅ Fixed #{file_path}"
+
+    # Show diff
+    puts "Changes made:"
+    method_calls.each do |method_call_match|
+      method_name = method_call_match[0]
+      next if method_name.start_with?('step_')
+
+      skip_methods = %w[puts print p pp raise fail return next break super validates validate attr_reader attr_writer attr_accessor]
+      next if skip_methods.include?(method_name)
+      next if method_name.end_with?('?', '!', '=')
+
+      puts "  - #{method_name} → step_#{method_name}"
+    end
+  else
+    puts "ℹ️  No changes needed for #{file_path}"
+  end
+end
+
+# Main script
+if ARGV.empty?
+  puts "Usage: #{$0} <operation_file.rb> [<operation_file2.rb> ...]"
+  puts ""
+  puts "Examples:"
+  puts "  #{$0} app/operations/users/create_operation.rb"
+  puts "  #{$0} app/operations/**/*_operation.rb"
+  exit 1
+end
+
+ARGV.each do |file_pattern|
+  if file_pattern.include?('*')
+    Dir.glob(file_pattern).each { |file| fix_step_methods(file) }
+  else
+    fix_step_methods(file_pattern)
+  end
+end

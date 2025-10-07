@@ -112,22 +112,29 @@ $ rails g rails_hmvc:controller api/debug --type=api --views
 
 ### Generate Operations
 
-Create a single operation:
+**⚠️ Important**: Operations must be generated with specific RESTful actions. Single operation generation is not allowed.
+
+Create operations for specific actions:
 
 ```bash
-$ rails g rails_hmvc:operation v1/payments/process
+$ rails g rails_hmvc:operation products --actions=index,show,create
 ```
 
-Generate multiple operations:
+Generate operations with custom steps:
 
 ```bash
-$ rails g rails_hmvc:operation v1/orders --actions=approve,reject,ship
+$ rails g rails_hmvc:operation checkout --actions=create --steps=validate,process_payment,create_order
 ```
 
-Add operation steps:
+Generate operations for all CRUD actions:
 
 ```bash
-$ rails g rails_hmvc:operation v1/checkout/complete --steps=validate,process_payment,create_order
+$ rails g rails_hmvc:operation users --actions=index,show,new,edit,create,update,destroy
+```
+
+**❌ This will show an error:**
+```bash
+$ rails g rails_hmvc:operation products  # Missing --actions
 ```
 
 ### Generate Forms
@@ -155,6 +162,58 @@ $ rails g rails_hmvc:form users --actions=create,update,new,edit --attributes=na
 **❌ This will show an error:**
 ```bash
 $ rails g rails_hmvc:form products  # Missing --actions
+```
+
+### Generate Multiple Components (Multi Generator)
+
+**🔥 Power Feature**: Run multiple generators in one command for maximum productivity.
+
+**Basic Multi-Generation:**
+```bash
+$ rails g rails_hmvc:multi operation,form products --actions=create,update
+# Generates: operations + forms in one command (replaces operation_form generator)
+```
+
+**Full Stack Generation:**
+```bash
+$ rails g rails_hmvc:multi controller,operation,form products --type=web --actions=index,show,create,update
+# Generates: controller + operations + forms + views + routes
+```
+
+**API Development:**
+```bash
+$ rails g rails_hmvc:multi operation,form,serializer products --type=api --actions=index,show,create --attributes=name,price
+# Generates: operations + forms + serializers for API
+```
+
+**Selective Generation with Skip Options:**
+```bash
+$ rails g rails_hmvc:multi controller,operation,form products --type=web --skip_form
+# Generates: controller + operations (skips forms)
+```
+
+**Business Logic Only:**
+```bash
+$ rails g rails_hmvc:multi operation,form checkout --actions=create --steps=validate,process_payment --attributes=amount:decimal
+# Generates: operation with steps + form with attributes
+```
+
+### Multi Generator Features
+
+**🎯 Available Generators**: `controller`, `operation`, `form`, `serializer`
+
+**⚡ Smart Options**:
+- **Universal options**: `--actions`, `--type`, `--attributes`, `--steps`
+- **Skip options**: `--skip_operation`, `--skip_form`, `--skip_serializer`, `--skip_controller`
+- **Parent options**: `--parent_operation`, `--parent_form`, `--parent_serializer`
+- **Controller-specific**: `--routes`, `--views`, `--skip_views`, `--skip_routes`
+
+**📊 Generation Summary**: Shows success/failure status for each generator
+
+**❌ This will show an error:**
+```bash
+$ rails g rails_hmvc:multi products  # Missing generators list
+$ rails g rails_hmvc:multi invalid_generator products  # Invalid generator
 ```
 
 ### Generate Serializers
@@ -187,14 +246,14 @@ type: api
 
 # API configuration
 api:
-  controllers:
-    parent: MainController
-    actions: [index, show, create, update, destroy]
-  operations:
-    parent: MainOperation
-  forms:
-    parent: MainForm
-    actions: [create, update]
+controllers:
+  parent: MainController
+  actions: [index, show, create, update, destroy]
+operations:
+  parent: MainOperation
+forms:
+  parent: MainForm
+  actions: [create, update]
 
 # Web configuration
 web:
@@ -239,8 +298,10 @@ web:
 
 ### Operation Generator Options
 
-- `--steps`: List of operation steps
-- `--actions`: List of operations to generate
+- `--steps`: List of operation steps (validate,process,complete)
+- `--actions`: **Required** - List of RESTful actions to generate operations for (index,show,create,update,destroy)
+
+**Important**: The `--actions` option is mandatory. Available actions: `index`, `show`, `new`, `edit`, `create`, `update`, `destroy`
 
 ### Form Generator Options
 
@@ -248,6 +309,34 @@ web:
 - `--actions`: **Required** - List of RESTful actions to generate forms for (create,update,new,edit)
 
 **Important**: The `--actions` option is mandatory. Available actions: `create`, `update`, `new`, `edit`
+
+### Multi Generator Options
+
+- `generators_list`: **Required** - Comma-separated list of generators (`controller,operation,form,serializer`)
+- `--actions`: List of RESTful actions to generate
+- `--type`: Project type (api/web)
+- `--attributes`: List of attributes for forms/serializers
+- `--steps`: List of operation steps
+- `--parent_operation`: Parent operation class
+- `--parent_form`: Parent form class
+- `--parent_serializer`: Parent serializer class
+- `--parent`: Parent controller class
+- `--skip_operation`: Skip operation generation
+- `--skip_form`: Skip form generation
+- `--skip_serializer`: Skip serializer generation
+- `--skip_controller`: Skip controller generation
+- `--skip_views`: Skip view generation
+- `--skip_routes`: Skip route generation
+- `--routes`: Force route generation
+- `--views`: Force view generation
+- `--resource_routes`: Use resource routes (default: true)
+
+**Power Features**:
+- **Flexible combinations**: Mix and match any generators
+- **Smart option passing**: Each generator receives appropriate options
+- **Error handling**: Individual generator failures don't stop others
+- **Summary reporting**: Clear success/failure status for each generator
+- **Skip capabilities**: Fine-grained control over what gets generated
 
 ### Views Features
 
@@ -578,13 +667,23 @@ bundle add rubocop-rails rubocop-rspec --group development
 
 ### Available Cops
 
+#### **Operations Cops**
 - **Operations/CallMethod**: Ensures operations have a `call` method
-- **Operations/StepMethods**: Enforces step method pattern in operations
+- **Operations/StepMethods**: Enforces step method pattern in operations *(with auto-correct)*
+- **Operations/StepMethodDefinitions**: Enforces `step_` prefix for private methods *(with auto-correct)*
+- **Operations/RestfulNaming**: Enforces RESTful action names in file names *(warning level)*
 - **Operations/BusinessLogicOnly**: Prevents direct model calls in `call` method
+
+#### **Forms Cops**
 - **Forms/ValidationOnly**: Ensures forms only contain validation logic
 - **Forms/NoDatabaseInteraction**: Prevents database calls in forms
+- **Forms/RestfulNaming**: Enforces RESTful action names in file names *(warning level)*
+
+#### **Controllers Cops**
 - **Controllers/NoBusinessLogic**: Prevents business logic in controllers
 - **Controllers/DelegateToOperations**: Enforces operation delegation
+
+#### **Models Cops**
 - **Models/ConcernsLocation**: Suggests moving complex logic to concerns
 
 ### Usage
@@ -620,6 +719,12 @@ bundle exec rubocop --safe-auto-correct
 # Auto-fix only HMVC violations (all departments)
 bundle exec rubocop --only RailsHmvc/Operations,RailsHmvc/Forms,RailsHmvc/Controllers,RailsHmvc/Models --safe-auto-correct
 
+# 🚀 Auto-fix step method prefixes (NEW!)
+bundle exec rubocop --only RailsHmvc/Operations/StepMethods,RailsHmvc/Operations/StepMethodDefinitions --auto-correct
+
+# 🔧 Alternative: Use standalone auto-fix script
+./bin/auto-fix-step-methods app/operations/**/*_operation.rb
+
 # Use shortcut script with auto-fix
 ./bin/rubocop-hmvc --safe-auto-correct
 
@@ -641,6 +746,106 @@ bundle exec rubocop --only RailsHmvc/Operations app/operations/
 
 # Check multiple departments
 bundle exec rubocop --only RailsHmvc/Operations,RailsHmvc/Forms app/
+```
+
+**Auto-Correct Examples:**
+
+```bash
+# Before auto-correct:
+class CreateUserOperation < ApplicationOperation
+  def call
+    validate_params  # ← Missing step_ prefix
+    create_user      # ← Missing step_ prefix
+  end
+
+  private
+
+  def validate_params  # ← Missing step_ prefix
+    # validation
+  end
+
+  def create_user      # ← Missing step_ prefix
+    # creation
+  end
+end
+
+# Run auto-correct:
+bundle exec rubocop --only RailsHmvc/Operations/StepMethodDefinitions --auto-correct
+
+# After auto-correct:
+class CreateUserOperation < ApplicationOperation
+  def call
+    step_validate_params  # ✅ Fixed automatically
+    step_create_user      # ✅ Fixed automatically
+  end
+
+  private
+
+  def step_validate_params  # ✅ Fixed automatically
+    # validation
+  end
+
+  def step_create_user      # ✅ Fixed automatically
+    # creation
+  end
+end
+```
+
+### **Standalone Auto-Fix Script**
+
+If RuboCop auto-correct is not working as expected, you can use the standalone script:
+
+```bash
+# Auto-fix specific files
+./bin/auto-fix-step-methods app/operations/users/create_operation.rb
+
+# Auto-fix all operations (using glob pattern)
+./bin/auto-fix-step-methods app/operations/**/*_operation.rb
+
+# Auto-fix operations in specific namespace
+./bin/auto-fix-step-methods app/operations/users/*_operation.rb
+```
+
+**What it fixes:**
+
+```ruby
+# Before:
+class CreateUserOperation < ApplicationOperation
+  def call
+    validate_params  # ← Will be fixed
+    create_user      # ← Will be fixed
+    save!           # ← Skipped (ends with !)
+  end
+
+  private
+
+  def step_validate_params
+    # ...
+  end
+
+  def step_create_user
+    # ...
+  end
+end
+
+# After running script:
+class CreateUserOperation < ApplicationOperation
+  def call
+    step_validate_params  # ✅ Fixed
+    step_create_user      # ✅ Fixed
+    save!                # ← Unchanged (correctly skipped)
+  end
+
+  private
+
+  def step_validate_params
+    # ...
+  end
+
+  def step_create_user
+    # ...
+  end
+end
 ```
 
 **Configuration Notes:**
@@ -680,7 +885,16 @@ bundle exec rubocop --only RailsHmvc/Operations,RailsHmvc/Forms app/
    ./bin/rubocop-hmvc
    ```
 
-4. **Debug cops loading**
+4. **Auto-correct not working**
+   ```bash
+   # Try the standalone script instead
+   ./bin/auto-fix-step-methods app/operations/**/*_operation.rb
+
+   # Or run RuboCop with verbose output
+   bundle exec rubocop --only RailsHmvc/Operations/StepMethods --auto-correct --display-cop-names
+   ```
+
+5. **Debug cops loading**
    ```ruby
    # Create debug script
    require 'rubocop'

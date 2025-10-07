@@ -142,6 +142,20 @@ RailsHmvc/Operations/StepMethods:
     - 'app/operations/**/*_operation.rb'
   EnforceStepPrefix: true  # Require step_ prefix for step methods
 
+RailsHmvc/Operations/StepMethodDefinitions:
+  Description: 'Private methods in Operations should have step_ prefix'
+  Enabled: true
+  Include:
+    - 'app/operations/**/*_operation.rb'
+  AutoCorrect: true
+
+RailsHmvc/Operations/RestfulNaming:
+  Description: 'Operation files should use RESTful action names'
+  Enabled: true
+  Include:
+    - 'app/operations/**/*_operation.rb'
+  Severity: warning
+
 RailsHmvc/Operations/BusinessLogicOnly:
   Description: 'Operations should not contain direct model calls in call method'
   Enabled: true
@@ -165,6 +179,13 @@ RailsHmvc/Forms/NoDatabaseInteraction:
   Enabled: true
   Include:
     - 'app/forms/**/*_form.rb'
+
+RailsHmvc/Forms/RestfulNaming:
+  Description: 'Form files should use RESTful action names'
+  Enabled: true
+  Include:
+    - 'app/forms/**/*_form.rb'
+  Severity: warning
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONTROLLERS COPS

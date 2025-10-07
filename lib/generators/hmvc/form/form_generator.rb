@@ -57,7 +57,7 @@ module RailsHmvc
         @current_action = action
         template(
           'form.rb',
-          "app/forms/#{namespace_path}/#{plural_name}/#{action}_form.rb"
+          "app/forms/#{namespace_path}/#{singular_name}/#{action}_form.rb"
         )
       end
 
@@ -95,6 +95,15 @@ module RailsHmvc
       def namespace_path
         # Extract namespace from class_path if it exists
         class_path.empty? ? "" : class_path.join("/")
+      end
+
+      def namespace_name
+        # Create namespace for class name - use singular class name
+        if class_path.empty?
+          singular_name.camelize
+        else
+          (class_path + [singular_name]).map(&:camelize).join("::")
+        end
       end
     end
   end

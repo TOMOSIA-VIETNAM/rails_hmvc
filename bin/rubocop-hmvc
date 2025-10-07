@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# RuboCop HMVC - Run all HMVC cops
+
+set -euo pipefail
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+echo -e "${GREEN}🔍 Running Rails HMVC RuboCop checks...${NC}"
+
+# Run all HMVC cops
+bundle exec rubocop \
+  --only "RailsHmvc/Operations,RailsHmvc/Forms,RailsHmvc/Controllers,RailsHmvc/Models" \
+  "$@"
+
+exit_code=$?
+
+if [ $exit_code -eq 0 ]; then
+  echo -e "${GREEN}✅ All HMVC conventions are properly followed!${NC}"
+else
+  echo -e "${YELLOW}💡 Tip: Use --auto-correct to fix step method prefixes automatically${NC}"
+  echo -e "${YELLOW}   ./bin/rubocop-hmvc --auto-correct${NC}"
+fi
+
+exit $exit_code

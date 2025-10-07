@@ -18,7 +18,15 @@ module RailsHmvc
       end
 
       def create_operations
-        return create_single_operation if actions.empty?
+        if actions.empty?
+          say "❌ Error: No actions specified for operation generation.", :red
+          say "Operations must be generated for specific RESTful actions.", :yellow
+          say "Usage examples:", :blue
+          say "  rails g rails_hmvc:operation #{name} --actions=index,show,create", :blue
+          say "  rails g rails_hmvc:operation #{name} --actions=create,update", :blue
+          say "Available actions: index, show, new, edit, create, update, destroy", :blue
+          exit 1
+        end
 
         actions.each do |action|
           create_operation_for(action)
@@ -41,35 +49,16 @@ module RailsHmvc
         @options[:actions]
       end
 
-      def create_single_operation
-        template(
-          'operation.rb',
-          "app/operations/#{namespace_path}/#{operation_path}.rb"
-        )
-      end
-
       def create_operation_for(action)
         @current_action = action
         template(
           'operation.rb',
-          "app/operations/#{namespace_path}/#{plural_name}/#{action}_operation.rb"
+          "app/operations/#{namespace_path}/#{singular_name}/#{action}_operation.rb"
         )
       end
 
-      def operation_path
-        if @current_action
-          "#{plural_name}/#{@current_action}_operation"
-        else
-          "#{operation_class_name.underscore}_operation"
-        end
-      end
-
       def operation_class_name
-        if @current_action
-          @current_action.camelize
-        else
-          file_name.camelize
-        end
+        @current_action.camelize
       end
 
       def parent_operation_class
@@ -85,6 +74,20 @@ module RailsHmvc
       def step_methods
         steps.map do |method_name|
           method_name.to_s.start_with?('step_') ? method_name.to_sym : :"step_#{method_name}"
+        end
+      end
+
+      def namespace_path
+        # Extract namespace from class_path if it exists
+        class_path.empty? ? "" : class_path.join("/")
+      end
+
+      def namespace_name
+        # Create namespace for class name - use singular class name
+        if class_path.empty?
+          singular_name.camelize
+        else
+          (class_path + [singular_name]).map(&:camelize).join("::")
         end
       end
     end
