@@ -63,6 +63,9 @@ module RailsHmvc
         empty_directory "app/views/layouts"
         empty_directory "app/views/shared"
 
+        template "layouts/application.html.erb.tt", "app/views/layouts/application.html.erb"
+        template "shared/_flash.html.erb.tt", "app/views/shared/_flash.html.erb"
+
         say "Views basic structure created (layouts, shared)", :green
         say "Use 'rails g rails_hmvc:controller resource --views' to generate specific views", :blue
       end

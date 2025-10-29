@@ -1,7 +1,9 @@
 # Rails HMVC RuboCop Configuration
 
 require:
+  - ./lib/rubocop-rails-hmvc
   - rails_hmvc
+  - rubocop-rails-hmvc
 
 plugins:
   - rubocop-rails
@@ -109,17 +111,17 @@ Rails/ActionFilter:
 # RSPEC RULES
 # ============================================================================
 
-RSpec/DescribedClass:
-  Enabled: true
+# RSpec/DescribedClass:
+#   Enabled: true
 
-RSpec/ExampleLength:
-  Max: 10
+# RSpec/ExampleLength:
+#   Max: 10
 
-RSpec/MultipleExpectations:
-  Max: 5
+# RSpec/MultipleExpectations:
+#   Max: 5
 
-RSpec/NestedGroups:
-  Max: 3
+# RSpec/NestedGroups:
+#   Max: 3
 
 # ============================================================================
 # RAILS HMVC CUSTOM COPS
@@ -204,6 +206,20 @@ RailsHmvc/Controllers/DelegateToOperations:
   Include:
     - 'app/controllers/**/*_controller.rb'
   EnforceForActions: ['create', 'update', 'destroy']  # Must use operations
+
+# Ensure controller file/class names are pluralized
+RailsHmvc/Controllers/PluralizedFilename:
+  Description: 'Controllers must be pluralized in filename and class name'
+  Enabled: true
+  Include:
+    - 'app/controllers/**/*_controller.rb'
+
+# Ensure action-based Operation/Form names and file names
+RailsHmvc/Controllers/ActionOperationNaming:
+  Description: 'Controller actions must reference action-based Operation/Form names; will autocorrect'
+  Enabled: true
+  Include:
+    - 'app/controllers/**/*_controller.rb'
 
 # ─────────────────────────────────────────────────────────────────────────────
 # MODELS COPS

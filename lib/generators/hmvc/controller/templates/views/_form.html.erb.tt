@@ -1,6 +1,6 @@
 <%% if @<%= @singular_name %>.errors.any? %>
-  <div class="alert alert-danger" role="alert">
-    <h6><%%= pluralize(@<%= @singular_name %>.errors.count, "error") %> prohibited this <%= @singular_name %> from being saved:</h6>
+  <div class="alert alert-danger form-errors" role="alert">
+    <h6 class="mb-2"><%%= pluralize(@<%= @singular_name %>.errors.count, "error") %> prohibited this <%= @singular_name %> from being saved:</h6>
     <ul class="mb-0">
       <%% @<%= @singular_name %>.errors.full_messages.each do |message| %>
         <li><%%= message %></li>

@@ -908,6 +908,38 @@ end
 
 See [RUBOCOP_HMVC.md](RUBOCOP_HMVC.md) for detailed documentation.
 
+## Custom RuboCop Checks
+
+This project includes custom RuboCop checks for enforcing file naming conventions:
+  - Controllers must have pluralized file names.
+  - Forms and Operations file names should be prefixed based on the method name they implement (e.g., `CreateForm`).
+
+### HMVC File Naming Cops
+
+- RailsHmvc/Controllers/PluralizedFilename
+  - Enforces controller file/class names are plural (e.g., `users_controller.rb`, `UsersController`).
+  - Auto-correct will rename the class and attempt to rename the file.
+
+- RailsHmvc/Controllers/ActionOperationNaming
+  - In controller actions, enforces Operation/Form names follow action prefixes (`Create`, `Update`, `Destroy`, `Show`, `Index`, `New`, `Edit`).
+  - Auto-correct will:
+    - Replace constant references (e.g., `Api::V1::HelloOperation` → `Api::V1::CreateOperation` in `create`).
+    - Attempt to rename the corresponding files:
+      - `app/operations/.../hello_operation.rb` → `app/operations/.../create_operation.rb`
+      - `app/forms/.../hello_form.rb` → `app/forms/.../create_form.rb`
+
+### Running RuboCop
+
+To check for file naming conventions and apply auto-fixes, run:
+```bash
+rubocop --auto-correct
+```
+
+Or to run HMVC-only cops:
+```bash
+./bin/rubocop-hmvc --auto-correct
+```
+
 ## Component Workflows
 
 ### API Workflow
