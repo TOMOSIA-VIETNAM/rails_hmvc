@@ -1,3 +1,5 @@
+require 'rails/generators'
+
 module RailsHmvc
   module Generators
     class InitGenerator < Rails::Generators::Base

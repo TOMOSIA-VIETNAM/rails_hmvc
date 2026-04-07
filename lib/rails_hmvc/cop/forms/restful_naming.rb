@@ -50,7 +50,7 @@ module RuboCop
             return if suggestions.empty?
 
             add_global_offense(
-              message: format(MSG, suggestions: suggestions.join(', ')),
+              format(MSG, suggestions: suggestions.join(', ')),
               severity: :warning
             )
           end

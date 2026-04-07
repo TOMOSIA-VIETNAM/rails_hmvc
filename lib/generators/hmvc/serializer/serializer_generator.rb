@@ -53,7 +53,7 @@ module RailsHmvc
       def create_single_serializer
         template(
           'serializer.rb',
-          "app/serializers/#{namespace_path}/#{serializer_path}.rb"
+          "app/serializers/#{[namespace_path, serializer_path].reject(&:empty?).join('/')}.rb"
         )
       end
 
@@ -61,7 +61,7 @@ module RailsHmvc
         @current_action = action
         template(
           'serializer.rb',
-          "app/serializers/#{namespace_path}/#{singular_name}/#{action}_serializer.rb"
+          "app/serializers/#{[namespace_path, singular_name, "#{action}_serializer.rb"].reject(&:empty?).join('/')}"
         )
       end
 

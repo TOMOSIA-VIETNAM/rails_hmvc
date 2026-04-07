@@ -38,7 +38,6 @@ module RailsHmvc
       # Serializer options
       class_option :skip_serializer, type: :boolean, default: false, desc: 'Skip associating with serializers'
       class_option :parent_serializer, type: :string, desc: 'Parent serializer class'
-      class_option :attributes, type: :string, desc: 'List of serializer attributes in the format: name'
 
       def initialize(*args)
         super
@@ -81,7 +80,7 @@ module RailsHmvc
 
         # Generate all operations in one call
         Rails::Generators.invoke("rails_hmvc:operation", [
-                                   "#{namespace_path}/#{singular_name}",
+                                   resource_path,
                                    "--actions=#{controller_operation_actions.join(',')}",
                                    "--type=#{@options[:type]}",
                                    "--parent=#{@options[:parent_operation]}",
@@ -103,7 +102,7 @@ module RailsHmvc
 
         # Generate all forms in one call
         Rails::Generators.invoke("rails_hmvc:form", [
-                                   "#{namespace_path}/#{singular_name}",
+                                   resource_path,
                                    "--actions=#{controller_form_actions.join(',')}",
                                    "--type=#{@options[:type]}",
                                    "--parent=#{@options[:parent_form]}",
@@ -125,7 +124,7 @@ module RailsHmvc
 
         # Generate all serializers in one call
         Rails::Generators.invoke('rails_hmvc:serializer', [
-                                   "#{namespace_path}/#{singular_name}",
+                                   resource_path,
                                    "--actions=#{controller_serializer_actions.join(',')}",
                                    "--type=#{@options[:type]}",
                                    "--parent=#{@options[:parent_serializer]}",
@@ -206,11 +205,12 @@ module RailsHmvc
       end
 
       def controller_path
-        "#{namespace_path}/#{plural_name}_controller"
+        [namespace_path, "#{plural_name}_controller"].reject(&:empty?).join("/")
       end
 
       def controller_class_name
-        "#{resource_class}Controller"
+        parts = class_path + [plural_name]
+        "#{parts.map(&:camelize).join('::')}Controller"
       end
 
       def resource_class
@@ -220,6 +220,10 @@ module RailsHmvc
       def namespace_path
         # Extract namespace from class_path if it exists
         class_path.empty? ? "" : class_path.join("/")
+      end
+
+      def resource_path
+        [namespace_path, singular_name].reject(&:empty?).join("/")
       end
 
       def actions
@@ -276,7 +280,7 @@ module RailsHmvc
       end
 
       def route_path_for(action)
-        base_path = "/#{namespace_path}/#{plural_name}"
+        base_path = "/#{[namespace_path, plural_name].reject(&:empty?).join('/')}"
         needs_id = %w[show update destroy edit].include?(action)
         needs_id ? "#{base_path}/:id" : base_path
       end

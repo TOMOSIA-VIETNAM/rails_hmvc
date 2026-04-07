@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-<% module_namespacing do -%>
 class <%= controller_class_name %> < <%= parent_controller_class %>
 <% actions.each_with_index do |action, index| -%>
 <%= "\n" if index > 0 %>  # <%= action_comment_for(action) %>
@@ -26,4 +25,3 @@ class <%= controller_class_name %> < <%= parent_controller_class %>
   end
 <% end -%>
 end
-<% end -%>

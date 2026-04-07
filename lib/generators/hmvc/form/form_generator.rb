@@ -57,7 +57,7 @@ module RailsHmvc
         @current_action = action
         template(
           'form.rb',
-          "app/forms/#{namespace_path}/#{singular_name}/#{action}_form.rb"
+          "app/forms/#{[namespace_path, singular_name, "#{action}_form.rb"].reject(&:empty?).join('/')}"
         )
       end
 

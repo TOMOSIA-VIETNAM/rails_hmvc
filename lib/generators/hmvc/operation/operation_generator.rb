@@ -1,3 +1,6 @@
+require 'rails/generators'
+require 'rails/generators/named_base'
+
 module RailsHmvc
   module Generators
     class OperationGenerator < Rails::Generators::NamedBase
@@ -53,7 +56,7 @@ module RailsHmvc
         @current_action = action
         template(
           'operation.rb',
-          "app/operations/#{namespace_path}/#{singular_name}/#{action}_operation.rb"
+          "app/operations/#{[namespace_path, singular_name, "#{action}_operation.rb"].reject(&:empty?).join('/')}"
         )
       end
 

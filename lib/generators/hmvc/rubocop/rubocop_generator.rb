@@ -28,7 +28,7 @@ module RailsHmvc
       private
 
       def copy_file_from_example
-        example_path = File.expand_path('../../../examples/.rubocop.yml.example', __dir__)
+        example_path = File.expand_path('../../../../examples/.rubocop.yml.example', __dir__)
 
         if File.exist?(example_path)
           copy_file(example_path, '.rubocop.yml')

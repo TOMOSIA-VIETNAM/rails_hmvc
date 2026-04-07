@@ -163,8 +163,6 @@ module RailsHmvc
       end
 
       def invoke_serializer_generator
-        return unless has_actions?
-
         serializer_options = build_serializer_options
         Rails::Generators.invoke("rails_hmvc:serializer", [
                                    full_resource_path,
