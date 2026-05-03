@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ─────────────────────────────────────────────
+# Usage:
+#   bin/yank <version>
+#   bin/yank <version> -k <api_key_name>
+#
+# API key resolution (first match wins):
+#   1. GEM_HOST_API_KEY from .env
+#   2. -k flag (named key from ~/.gem/credentials)
+# ─────────────────────────────────────────────
+
+VERSION="${1:?Usage: bin/yank <version> [-k <api_key_name>]}"
+API_KEY_NAME=""
+
+shift
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -k) API_KEY_NAME="${2:?-k requires a key name}"; shift 2 ;;
+    *)  echo "Unknown option: $1"; exit 1 ;;
+  esac
+done
+
+# ── Helpers ────────────────────────────────────
+divider() { echo ""; echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"; }
+ok()       { echo "  ✔ $1"; }
+fail()     { echo "  ✘ $1"; exit 1; }
+
+# ── Load .env ─────────────────────────────────
+if [[ -f .env ]]; then
+  set -a
+  source .env
+  set +a
+fi
+
+# ── Resolve API key ──────────────────────────
+if [[ -n "${GEM_HOST_API_KEY:-}" ]]; then
+  AUTH_METHOD="env"
+  AUTH_DISPLAY="${GEM_HOST_API_KEY:0:12}..."
+elif [[ -n "$API_KEY_NAME" ]]; then
+  AUTH_METHOD="credentials"
+  AUTH_DISPLAY="$API_KEY_NAME (from ~/.gem/credentials)"
+else
+  fail "No API key found. Set GEM_HOST_API_KEY in .env or use -k <key_name>"
+fi
+
+# ── Validate version format ────────────────────
+if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  fail "Version must be semver format (x.y.z)"
+fi
+
+divider
+echo "  rails_hmvc yank"
+echo "  Version         : $VERSION"
+echo "  API key         : $AUTH_DISPLAY"
+divider
+
+echo ""
+read -r -p "Yank rails_hmvc v$VERSION from RubyGems? This is destructive. [y/N] " CONFIRM
+case "$CONFIRM" in
+  [yY]) ;;
+  *) echo "Aborted."; exit 0 ;;
+esac
+
+echo ""
+if [[ "$AUTH_METHOD" == "env" ]]; then
+  gem yank rails_hmvc -v "$VERSION"
+else
+  gem yank rails_hmvc -v "$VERSION" -k "$API_KEY_NAME"
+fi
+ok "Yanked rails_hmvc v$VERSION from RubyGems"
+
+if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+  git tag -d "v$VERSION"
+  ok "Removed local tag v$VERSION"
+fi
+
+divider
+echo ""
+echo "  Yanked v$VERSION successfully!"
+echo ""
+echo "  If tag was pushed to remote, also run:"
+echo "    git push origin :refs/tags/v$VERSION"
+divider

@@ -1,0 +1,17 @@
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        RUBY_VERSION: "3.2.6"
+    image: rails_hmvc:local
+    volumes:
+      - .:/app
+      - bundle_cache:/app/vendor/bundle
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+
+volumes:
+  bundle_cache:

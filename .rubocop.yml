@@ -1,5 +1,22 @@
+plugins:
+  - rubocop-rails
+  - rubocop-capybara
+  - rubocop-factory_bot
+
+require:
+  - rubocop-rspec
+  - rubocop-rspec_rails
+
 AllCops:
-  TargetRubyVersion: 2.6
+  TargetRubyVersion: 2.7
+  NewCops: enable
+  SuggestExtensions: false
+  Exclude:
+    - "lib/generators/**/templates/**/*"
+    - "spec/tmp/**/*"
+    - "spec/dummy/**/*"
+    - "vendor/**/*"
+    - "gemfiles/**/*"
 
 Style/StringLiterals:
   Enabled: true
@@ -11,3 +28,36 @@ Style/StringLiteralsInInterpolation:
 
 Layout/LineLength:
   Max: 120
+
+Style/Documentation:
+  Enabled: false
+
+Gemspec/DevelopmentDependencies:
+  Enabled: false
+
+Capybara/RSpec/PredicateMatcher:
+  Enabled: false
+
+Metrics/MethodLength:
+  Max: 40
+
+Metrics/CyclomaticComplexity:
+  Max: 12
+
+Metrics/ClassLength:
+  Max: 200
+
+Metrics/AbcSize:
+  Max: 25
+
+RSpec/MultipleExpectations:
+  Max: 10
+
+RSpec/ExampleLength:
+  Max: 20
+
+RSpec/FilePath:
+  Enabled: false
+
+RSpec/SpecFilePathFormat:
+  Enabled: false

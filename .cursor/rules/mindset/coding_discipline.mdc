@@ -1,0 +1,49 @@
+---
+description: Coding discipline rules to prevent common agent mistakes
+globs: **/*.rb
+alwaysApply: false
+---
+
+# Coding Discipline
+
+## Before Writing Code
+
+- If the requirement is unclear, brainstorm with user first — do NOT guess
+- Understand the business logic thoroughly before implementing — no patchy code
+- Follow the project's HMVC structure; read the `dev` skill if needed
+
+## When Corrected
+
+- If the user corrects a mistake or points out a wrong approach, immediately invoke the `lessons` subagent to record it before continuing
+- If a code review flags a Critical issue, invoke the `lessons` subagent to record it
+
+## While Writing Code
+
+- Vertical slice, not horizontal — implement one feature end-to-end through all layers before starting the next
+- YAGNI: do not write code for things not yet needed
+- Single Responsibility: each class/method does exactly one thing
+- No hardcoded values, no magic numbers — use config or named constants with clear context
+- Do not declare constants carelessly — only when reused or when naming a value adds clarity
+- Only mock external dependencies (APIs, email, file system) — never mock to bypass internal logic
+
+## Examples
+
+```ruby
+# BAD: magic number
+def expired?
+  created_at < 30.days.ago
+end
+
+# GOOD: named, configurable
+EXPIRATION_PERIOD = 30.days
+def expired?
+  created_at < EXPIRATION_PERIOD.ago
+end
+
+# BAD: mocking internal logic to make test pass
+allow(operation).to receive(:call).and_return(true)
+
+# GOOD: test through public interface with real input
+result = described_class.call(params: valid_params)
+expect(result).to be_success
+```
