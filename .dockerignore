@@ -1,0 +1,8 @@
+# Keep `.git` — gemspec uses `git ls-files` for `spec.files`.
+
+/pkg
+*.gem
+/tmp
+/coverage
+/.bundle
+/vendor/bundle

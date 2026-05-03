@@ -1,15 +1,32 @@
 # frozen_string_literal: true
 
-require "rails_hmvc"
+require "simplecov"
+SimpleCov.start do
+  add_filter "/spec/"
+  add_filter "/sig/"
+  # ERB-backed generator templates are not executed as Ruby.
+  add_filter %r{/lib/generators/hmvc/.*/templates/}
+  # Loaded via gemspec `require_relative` before SimpleCov starts under `bundle exec`.
+  add_filter "/lib/rails_hmvc/version.rb"
+  minimum_coverage 100 if ENV["CI"] || ENV["COVERAGE"]
+  track_files "lib/**/*.rb"
+end
+
+require_relative "rails_helper"
 
 RSpec.configure do |config|
-  # Enable flags like --only-failures and --next-failure
-  config.example_status_persistence_file_path = ".rspec_status"
-
-  # Disable RSpec exposing methods globally on `Module` and `main`
-  config.disable_monkey_patching!
-
-  config.expect_with :rspec do |c|
-    c.syntax = :expect
+  config.expect_with :rspec do |expectations|
+    expectations.include_chain_clauses_in_custom_matcher_descriptions = true
   end
+
+  config.mock_with :rspec do |mocks|
+    mocks.verify_partial_doubles = true
+  end
+
+  config.shared_context_metadata_behavior = :apply_to_host_groups
+  config.filter_run_when_matching :focus
+  config.example_status_persistence_file_path = ".rspec_status"
+  config.disable_monkey_patching!
+  config.order = :random
+  Kernel.srand config.seed
 end

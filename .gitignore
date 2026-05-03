@@ -5,7 +5,18 @@
 /doc/
 /pkg/
 /spec/reports/
+/spec/tmp/
+gemfiles/*.gemfile.lock
 /tmp/
+
+.DS_Store
 
 # rspec failure tracking
 .rspec_status
+rails_hmvc-*.gem
+example/
+vendor/bundle/
+
+.cursor/remote
+
+.env

@@ -4,24 +4,42 @@ on:
   push:
     branches:
       - main
-
   pull_request:
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-    name: Ruby ${{ matrix.ruby }}
+    name: Ruby ${{ matrix.ruby }} / ${{ matrix.gemfile }}
     strategy:
+      fail-fast: false
       matrix:
-        ruby:
-          - '3.3.0'
+        ruby: ['2.7', '3.0', '3.2', '3.3']
+        gemfile:
+          - gemfiles/rails_6_1.gemfile
+          - gemfiles/rails_7_0.gemfile
+          - gemfiles/rails_7_1.gemfile
+          - gemfiles/rails_8_0.gemfile
+        exclude:
+          # Rails 8.0 requires Ruby >= 3.2
+          - ruby: '2.7'
+            gemfile: gemfiles/rails_8_0.gemfile
+          - ruby: '3.0'
+            gemfile: gemfiles/rails_8_0.gemfile
+          # Rails 6.1 incompatible with Ruby >= 3.2 (Logger constant bug)
+          - ruby: '3.2'
+            gemfile: gemfiles/rails_6_1.gemfile
+          - ruby: '3.3'
+            gemfile: gemfiles/rails_6_1.gemfile
+
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/${{ matrix.gemfile }}
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: ${{ matrix.ruby }}
-        bundler-cache: true
-    - name: Run the default task
-      run: bundle exec rake
+      - uses: actions/checkout@v4
+      - name: Set up Ruby ${{ matrix.ruby }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: Run tests
+        run: bundle exec rake

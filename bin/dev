@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -e
+
+case "${1:-s}" in
+  s|start|up)
+    docker compose up -d
+    docker compose exec dev bash
+    ;;
+  d|stop|down)
+    docker compose down
+    ;;
+  *)
+    echo "Usage: bin/dev [s|start|stop]"
+    exit 1
+    ;;
+esac

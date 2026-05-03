@@ -1,0 +1,162 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ─────────────────────────────────────────────
+# Usage:
+#   bin/release <version>
+#   bin/release <version> -k <api_key_name>
+#
+# API key resolution (first match wins):
+#   1. GEM_HOST_API_KEY from .env
+#   2. -k flag (named key from ~/.gem/credentials)
+# ─────────────────────────────────────────────
+
+VERSION="${1:?Usage: bin/release <version> [-k <api_key_name>]}"
+API_KEY_NAME=""
+
+shift
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -k) API_KEY_NAME="${2:?-k requires a key name}"; shift 2 ;;
+    *)  echo "Unknown option: $1"; exit 1 ;;
+  esac
+done
+
+VERSION_FILE="lib/rails_hmvc/version.rb"
+CHANGELOG="CHANGELOG.md"
+GEMSPEC="rails_hmvc.gemspec"
+
+# ── Helpers ────────────────────────────────────
+divider() { echo ""; echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"; }
+step()     { echo ""; echo "▶ [$1] $2"; }
+ok()       { echo "  ✔ $1"; }
+fail()     { echo "  ✘ $1"; exit 1; }
+
+# ── Load .env ─────────────────────────────────
+if [[ -f .env ]]; then
+  set -a
+  source .env
+  set +a
+fi
+
+# ── Resolve API key ──────────────────────────
+if [[ -n "${GEM_HOST_API_KEY:-}" ]]; then
+  AUTH_METHOD="env"
+  AUTH_DISPLAY="${GEM_HOST_API_KEY:0:12}..."
+elif [[ -n "$API_KEY_NAME" ]]; then
+  AUTH_METHOD="credentials"
+  AUTH_DISPLAY="$API_KEY_NAME (from ~/.gem/credentials)"
+else
+  fail "No API key found. Set GEM_HOST_API_KEY in .env or use -k <key_name>"
+fi
+
+# ── Validate version format ────────────────────
+if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  fail "Version must be semver format (x.y.z)"
+fi
+
+CURRENT=$(grep -oE 'VERSION = "[^"]+"' "$VERSION_FILE" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+
+divider
+echo "  rails_hmvc release"
+echo "  Current version : $CURRENT"
+echo "  New version     : $VERSION"
+echo "  API key         : $AUTH_DISPLAY"
+divider
+
+# ── Guard: clean working tree ──────────────────
+if [[ -n "$(git status --porcelain)" ]]; then
+  fail "Working directory is not clean. Commit or stash changes first."
+fi
+
+# ── Step 1: Run test suite ─────────────────────
+step "1/6" "Running RSpec (with coverage)"
+if ! CI=true bundle exec rspec --format progress 2>&1; then
+  fail "RSpec failed — aborting release"
+fi
+ok "RSpec passed"
+
+# ── Step 2: Run RuboCop ───────────────────────
+step "2/6" "Running RuboCop"
+if ! bundle exec rubocop lib spec Rakefile rails_hmvc.gemspec 2>&1; then
+  fail "RuboCop failed — aborting release"
+fi
+ok "RuboCop passed"
+
+# ── Step 3: Print packaged files ───────────────
+step "3/6" "Files to be packaged"
+PACKAGED_FILES=$(ruby -e "
+spec = Gem::Specification.load('$GEMSPEC')
+puts spec.files
+")
+echo "$PACKAGED_FILES" | sed 's/^/  /'
+FILE_COUNT=$(echo "$PACKAGED_FILES" | wc -l | tr -d ' ')
+ok "$FILE_COUNT files will be included"
+
+# ── Step 4: Print release notes ───────────────
+step "4/6" "Release notes for v$VERSION"
+NOTES=$(awk -v ver="$VERSION" '
+  $0 ~ "^## \\[" ver "\\]" {found=1; next}
+  found && /^## \[/ {exit}
+  found {print}
+' "$CHANGELOG")
+if [[ -z "$(echo "$NOTES" | tr -d '[:space:]')" ]]; then
+  echo "  (No entries for v$VERSION in CHANGELOG)"
+else
+  echo "$NOTES" | sed 's/^/  /'
+fi
+
+# ── Confirm ────────────────────────────────────
+divider
+echo ""
+read -r -p "Proceed with release v$VERSION? [y/N] " CONFIRM
+case "$CONFIRM" in
+  [yY]) ;;
+  *) echo "Aborted."; exit 0 ;;
+esac
+
+# ── Step 5: Bump version + CHANGELOG + commit + tag ──
+step "5/6" "Bumping version, updating CHANGELOG, committing, tagging"
+
+sed -i.bak "s/VERSION = \"$CURRENT\"/VERSION = \"$VERSION\"/" "$VERSION_FILE"
+rm -f "${VERSION_FILE}.bak"
+ok "Updated $VERSION_FILE → $VERSION"
+
+git add "$VERSION_FILE"
+if git diff --cached --quiet; then
+  ok "No changes to commit (version already at $VERSION)"
+else
+  git commit -m "chore: release v$VERSION"
+fi
+
+if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+  git tag -d "v$VERSION"
+  ok "Removed existing tag v$VERSION"
+fi
+git tag -a "v$VERSION" -m "Release v$VERSION"
+ok "Committed + tagged v$VERSION"
+
+# ── Step 6: Build and push gem ────────────────
+step "6/6" "Building and pushing gem"
+GEM_FILE="rails_hmvc-$VERSION.gem"
+rm -f "$GEM_FILE"
+gem build "$GEMSPEC"
+ok "Built $GEM_FILE"
+
+if [[ "$AUTH_METHOD" == "env" ]]; then
+  gem push "$GEM_FILE"
+else
+  gem push "$GEM_FILE" -k "$API_KEY_NAME"
+fi
+ok "Pushed to RubyGems"
+
+rm -f "$GEM_FILE"
+
+# ── Done ───────────────────────────────────────
+divider
+echo ""
+echo "  Released v$VERSION successfully!"
+echo ""
+echo "  Next: push commits and tags to remote"
+echo "    git push origin main --tags"
+divider

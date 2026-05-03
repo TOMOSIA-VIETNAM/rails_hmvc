@@ -1,0 +1,110 @@
+# frozen_string_literal: true
+
+require "rails/generators"
+require "rails/generators/named_base"
+require_relative "../generator_helpers"
+
+module RailsHmvc
+  module Generators
+    class FormGenerator < Rails::Generators::NamedBase
+      include GeneratorHelpers
+
+      source_root File.expand_path("templates", __dir__)
+
+      class_option :type, type: :string, desc: "Project type (api/web)"
+      class_option :parent, type: :string, desc: "Parent class to inherit from"
+      class_option :attributes, type: :string, desc: "List of attributes in the format: name:type"
+      class_option :actions, type: :string, desc: "List of forms to generate (e.g., create,update)"
+
+      def initialize(*args)
+        super
+        @config = load_config_for_type(options[:type])
+        @forms_config = @config["forms"]
+        @form_attributes = parse_attributes(options[:attributes])
+        set_defaults_from_config
+      end
+
+      def create_forms
+        return create_single_form if actions.empty?
+
+        actions.each do |action|
+          create_form_for(action)
+        end
+      end
+
+      private
+
+      def set_defaults_from_config
+        @options = options.dup
+        @options[:type] ||= @config["type"]
+        @options[:parent] ||= @forms_config["parent"]
+        @options[:actions] ||= [] # Do not set default actions here. Because it will override from user input.
+      end
+
+      def actions
+        return [] if @options[:actions].nil?
+        return @options[:actions].split(",") if @options[:actions].is_a?(String)
+
+        @options[:actions]
+      end
+
+      def create_single_form
+        template(
+          "form.rb",
+          "app/forms/#{namespace_path}/#{form_path}.rb"
+        )
+      end
+
+      def create_form_for(action)
+        @current_action = action
+        template(
+          "form.rb",
+          "app/forms/#{namespace_path}/#{plural_name}/#{action}_form.rb"
+        )
+      end
+
+      def form_path
+        if @current_action
+          "#{plural_name}/#{@current_action}_form"
+        else
+          "#{form_class_name.underscore}_form"
+        end
+      end
+
+      def form_class_name
+        if @current_action
+          @current_action.camelize
+        else
+          file_name.camelize
+        end
+      end
+
+      def parent_form_class
+        @options[:parent]
+      end
+
+      def parse_attributes(attrs)
+        if attrs.nil?
+          [{ prop: :name, type: "string" }]
+        else
+          attrs.split(",").map do |attr|
+            prop, type = attr.split(":")
+            { prop: prop, type: type }
+          end
+        end
+      end
+
+      def attribute_definitions
+        return if @form_attributes.nil?
+
+        @form_attributes.map do |attr|
+          if attr[:type].nil?
+            "  attribute :#{attr[:prop]}"
+          else
+            "  attribute :#{attr[:prop]}, :#{attr[:type]}"
+          end
+        end.join("\n")
+      end
+    end
+  end
+end

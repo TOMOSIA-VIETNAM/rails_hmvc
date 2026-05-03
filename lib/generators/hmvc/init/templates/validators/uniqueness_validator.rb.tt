@@ -1,0 +1,47 @@
+# frozen_string_literal: true
+
+class UniquenessValidator < ActiveModel::EachValidator
+  # Purpose:
+  # Validates uniqueness of a given attribute for a given model.
+  #
+  # Example 1: Validates uniqueness of email for User
+  # validates :email, presence: true,
+  #                  uniqueness: {
+  #                    model: 'User', # Required
+  #                    scope: [:role], # Optional
+  #                    message: 'has already been taken in this role' # Optional
+  #                  }
+  #
+  # Example 2: Validates uniqueness of email for User with exclusion of current user
+  # attribute :record # or :alias_record
+  # validates :email, presence: true,
+  #                  uniqueness: {
+  #                    model: 'User',
+  #                    scope: [:role],
+  #                    message: 'has already been taken in this role'
+  def initialize(options)
+    super(options)
+    @klass = options[:model] if options[:model]
+  end
+
+  def validate_each(record, attribute, _value)
+    record_org    = record
+    attribute_org = attribute
+    attribute     = options[:attribute].to_sym if options[:attribute]
+    base_attrs    = {}
+    base_attrs[attribute] = record_org.send(attribute)
+
+    options[:scope]&.each do |scope_attribute|
+      base_attrs[scope_attribute] = record_org.send(scope_attribute)
+    end
+
+    alias_record = options[:alias_record] || :record
+    record = if record_org.try(alias_record)
+               options[:model].where.not(id: record_org.send(alias_record).id).exists?(base_attrs)
+             else
+               options[:model].exists?(base_attrs)
+             end
+
+    record_org.errors.add(attribute_org, options[:message] || :taken) if record
+  end
+end
