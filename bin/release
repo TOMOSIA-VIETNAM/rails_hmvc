@@ -69,6 +69,9 @@ if [[ -n "$(git status --porcelain)" ]]; then
   fail "Working directory is not clean. Commit or stash changes first."
 fi
 
+# ── Ensure bundle is consistent ───────────────
+bundle check >/dev/null 2>&1 || bundle install --quiet
+
 # ── Step 1: Run test suite ─────────────────────
 step "1/6" "Running RSpec (with coverage)"
 if ! CI=true bundle exec rspec --format progress 2>&1; then
@@ -122,7 +125,8 @@ sed -i.bak "s/VERSION = \"$CURRENT\"/VERSION = \"$VERSION\"/" "$VERSION_FILE"
 rm -f "${VERSION_FILE}.bak"
 ok "Updated $VERSION_FILE → $VERSION"
 
-git add "$VERSION_FILE"
+bundle install --quiet
+git add "$VERSION_FILE" Gemfile.lock
 if git diff --cached --quiet; then
   ok "No changes to commit (version already at $VERSION)"
 else
