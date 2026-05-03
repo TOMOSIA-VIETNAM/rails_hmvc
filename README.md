@@ -1,6 +1,6 @@
 # Rails HMVC
 
-[![Gem Version](https://badge.fury.io/rb/rails_hmvc.svg)](https://badge.fury.io/rb/rails_hmvc)
+[![Gem Version](https://badge.fury.io/rb/rails_hmvc.svg?icon=si%3Arubygems)](https://badge.fury.io/rb/rails_hmvc)
 [![Ruby Style Guide](https://img.shields.io/badge/code_style-rubocop-brightgreen.svg)](https://github.com/rubocop/rubocop)
 
 **Your Rails controllers are doing too much.** Validation logic mixed with business rules. Database queries sitting next to HTTP responses. Fat models or fat controllers — pick your poison.
