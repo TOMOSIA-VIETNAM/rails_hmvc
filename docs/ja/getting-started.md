@@ -24,7 +24,8 @@ bundle install
 ## 2. HMVC 構成の初期化
 
 ```bash
-rails g rails_hmvc:init --type=api
+rails g hmvc:init --type=api
+# または短く: hmvc init --type=api
 ```
 
 ディレクトリツリー、ベースクラス、concern、設定が scaffold されます。
@@ -53,12 +54,19 @@ config/
 └── rails_hmvc.yml                # Generator defaults
 ```
 
-> 従来の web アプリ向け: `rails g rails_hmvc:init --type=web`
+> 従来の web アプリ向け: `rails g hmvc:init --type=web`
 
 ## 3. 最初の resource を生成する
 
 ```bash
-rails g rails_hmvc:controller v1/users --type=api
+rails g hmvc:controller v1/users --type=api
+# または短く: hmvc g controller v1/users --type=api
+```
+
+生成されたファイルを取り消すには、同じ引数で `rails d` を使います。
+
+```bash
+rails d hmvc:controller v1/users --type=api
 ```
 
 生成される成果物:

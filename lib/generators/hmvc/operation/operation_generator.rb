@@ -3,6 +3,8 @@
 module RailsHmvc
   module Generators
     class OperationGenerator < Rails::Generators::NamedBase
+      namespace "hmvc:operation"
+
       include GeneratorHelpers
 
       source_root File.expand_path("templates", __dir__)

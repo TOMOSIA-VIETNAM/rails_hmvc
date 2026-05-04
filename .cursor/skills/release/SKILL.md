@@ -51,14 +51,17 @@ When writing changelog entries:
 
 ## Release Workflow
 
-**Use the script — it runs the full pipeline automatically:**
+### Two-phase release (recommended — agent + human)
+
+RubyGems requires OTP for `gem push`, so the release is split into two phases:
+
+**Phase 1 — Agent runs `--prepare`** (automated, no OTP needed):
 
 ```bash
-bin/release 1.2.0              # uses GEM_HOST_API_KEY from .env
-bin/release 1.2.0 -k work     # uses named key from ~/.gem/credentials
+bin/release 1.2.0 --prepare
 ```
 
-The script runs these 6 steps in order, stopping on any failure:
+This runs steps 1–6 below but **stops after `gem build`** without pushing:
 
 | Step | What it does |
 |------|-------------|
@@ -68,13 +71,24 @@ The script runs these 6 steps in order, stopping on any failure:
 | 4/6 | Print release notes for the target version from `CHANGELOG.md` |
 | — | **Confirmation prompt** — review before proceeding |
 | 5/6 | Bump `version.rb`, git commit + tag |
-| 6/6 | `gem build` → `gem push` (via `.env` or `-k`) → remove `.gem` artifact |
+| 6/6 | `gem build` — produces `.gem` file, does **not** push |
 
-After the script completes, push commits and tags to remote:
+After `--prepare` completes, the agent should tell the user to run:
+
+**Phase 2 — Human runs `--deploy`** (prompts for OTP, pushes gem + git tags):
 
 ```bash
-git push origin main --tags
+bin/release 1.2.0 --deploy
 ```
+
+### Full release (when OTP is not required)
+
+```bash
+bin/release 1.2.0              # uses GEM_HOST_API_KEY from .env
+bin/release 1.2.0 -k work     # uses named key from ~/.gem/credentials
+```
+
+Runs all 6 steps including `gem push`, then prints instructions to push git tags.
 
 ### Yanking a version
 
@@ -92,7 +106,7 @@ bin/yank 0.1.0 -k work     # uses named key from ~/.gem/credentials
 5. `git commit -am "chore: release vX.Y.Z"`
 6. `git tag -a vX.Y.Z -m "Release vX.Y.Z"`
 7. `gem build rails_hmvc.gemspec`
-8. `gem push rails_hmvc-X.Y.Z.gem` (set `GEM_HOST_API_KEY` env var or use `-k key_name`)
+8. `gem push rails_hmvc-X.Y.Z.gem --otp <YOUR_OTP>`
 9. `rm rails_hmvc-*.gem`
 10. `git push origin main --tags`
 

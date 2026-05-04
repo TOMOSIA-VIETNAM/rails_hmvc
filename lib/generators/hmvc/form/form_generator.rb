@@ -7,6 +7,8 @@ require_relative "../generator_helpers"
 module RailsHmvc
   module Generators
     class FormGenerator < Rails::Generators::NamedBase
+      namespace "hmvc:form"
+
       include GeneratorHelpers
 
       source_root File.expand_path("templates", __dir__)

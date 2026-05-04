@@ -24,7 +24,8 @@ bundle install
 ## 2. Initialize the HMVC structure
 
 ```bash
-rails g rails_hmvc:init --type=api
+rails g hmvc:init --type=api
+# or shorter: hmvc init --type=api
 ```
 
 This scaffolds the directory tree, base classes, concerns, and configuration:
@@ -53,12 +54,19 @@ config/
 └── rails_hmvc.yml                # Generator defaults
 ```
 
-> For a classic web app: `rails g rails_hmvc:init --type=web`
+> For a classic web app: `rails g hmvc:init --type=web`
 
 ## 3. Generate your first resource
 
 ```bash
-rails g rails_hmvc:controller v1/users --type=api
+rails g hmvc:controller v1/users --type=api
+# or shorter: hmvc g controller v1/users --type=api
+```
+
+To undo the generation, use `rails d` with the same arguments:
+
+```bash
+rails d hmvc:controller v1/users --type=api
 ```
 
 Generated artifacts:

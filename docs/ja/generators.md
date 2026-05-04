@@ -2,25 +2,27 @@
 
 すべての generator は `config/rails_hmvc.yml` のデフォルトを読みます。CLI のフラグはそのデフォルトを上書きします。
 
-## `rails_hmvc:init`
+`rails g hmvc:<name>` で生成し、`rails d hmvc:<name>` に同じ引数を渡すことでファイルを削除できます。`hmvc g <name>` は `rails g hmvc:<name>` の短縮エイリアスです。
+
+## `hmvc:init`
 
 Rails アプリケーション内に HMVC 構成を用意します。
 
 ```bash
-rails g rails_hmvc:init --type=api
-rails g rails_hmvc:init --type=web
+rails g hmvc:init --type=api
+rails g hmvc:init --type=web
 ```
 
 **出力:** ディレクトリ、ベースクラス、concern、エラー用スタブ、`config/rails_hmvc.yml`。
 
 ---
 
-## `rails_hmvc:controller`
+## `hmvc:controller`
 
 Controller と、対になる Operation / Form をまとめて生成します。
 
 ```bash
-rails g rails_hmvc:controller v1/users --type=api
+rails g hmvc:controller v1/users --type=api
 ```
 
 **デフォルト出力（API）:**
@@ -52,23 +54,31 @@ app/forms/v1/users/update_form.rb
 
 ```bash
 # Custom, non-CRUD actions
-rails g rails_hmvc:controller v1/auth --type=api --actions=login,register,logout
+rails g hmvc:controller v1/auth --type=api --actions=login,register,logout
 
 # Controller + forms only
-rails g rails_hmvc:controller v1/categories --type=api --skip_operation
+rails g hmvc:controller v1/categories --type=api --skip_operation
 
 # Web stack (includes new/edit actions)
-rails g rails_hmvc:controller admin/products --type=web
+rails g hmvc:controller admin/products --type=web
 ```
+
+**Destroy:**
+
+```bash
+rails d hmvc:controller v1/users --type=api
+```
+
+対応する `rails g` コマンドで作成されたすべてのファイルを削除します。
 
 ---
 
-## `rails_hmvc:operation`
+## `hmvc:operation`
 
 単体の Operation を 1 つ以上生成します。
 
 ```bash
-rails g rails_hmvc:operation v1/payments/process
+rails g hmvc:operation v1/payments/process
 ```
 
 **オプション:**
@@ -84,23 +94,23 @@ rails g rails_hmvc:operation v1/payments/process
 
 ```bash
 # Single operation
-rails g rails_hmvc:operation v1/payments/process
+rails g hmvc:operation v1/payments/process
 
 # Batch of related operations
-rails g rails_hmvc:operation v1/orders --actions=approve,reject,ship
+rails g hmvc:operation v1/orders --actions=approve,reject,ship
 
 # Operation skeleton with step methods
-rails g rails_hmvc:operation v1/checkout/complete --steps=validate,process_payment,create_order
+rails g hmvc:operation v1/checkout/complete --steps=validate,process_payment,create_order
 ```
 
 ---
 
-## `rails_hmvc:form`
+## `hmvc:form`
 
 単体の Form を 1 つ以上生成します。
 
 ```bash
-rails g rails_hmvc:form v1/auth/login --attributes=email:string,password:string
+rails g hmvc:form v1/auth/login --attributes=email:string,password:string
 ```
 
 **オプション:**
@@ -116,10 +126,10 @@ rails g rails_hmvc:form v1/auth/login --attributes=email:string,password:string
 
 ```bash
 # Form with explicit attributes
-rails g rails_hmvc:form v1/auth/login --attributes=email:string,password:string
+rails g hmvc:form v1/auth/login --attributes=email:string,password:string
 
 # Pair of forms sharing the same attribute set
-rails g rails_hmvc:form v1/products --actions=create,update --attributes=name:string,price:decimal,active:boolean
+rails g hmvc:form v1/products --actions=create,update --attributes=name:string,price:decimal,active:boolean
 ```
 
 ---

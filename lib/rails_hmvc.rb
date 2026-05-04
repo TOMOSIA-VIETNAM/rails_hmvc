@@ -16,6 +16,9 @@ module RailsHmvc
         require_relative "generators/hmvc/form/form_generator"
         require_relative "generators/hmvc/operation/operation_generator"
         require_relative "generators/hmvc/controller/controller_generator"
+
+        # Keep `rails g rails_hmvc:*` working by falling back to `hmvc:*`.
+        Rails::Generators.fallbacks[:rails_hmvc] = :hmvc
       end
     end
   end

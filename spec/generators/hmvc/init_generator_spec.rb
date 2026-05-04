@@ -24,4 +24,17 @@ RSpec.describe RailsHmvc::Generators::InitGenerator, type: :generator do
     assert_file "lib/errors/application_error.rb"
     assert_file "lib/errors/resource_error.rb"
   end
+
+  it "removes generated files when destroyed" do
+    run_generator
+    run_generator [], behavior: :revoke
+    assert_no_file "config/rails_hmvc.yml"
+    assert_no_file "app/controllers/main_controller.rb"
+    assert_no_file "app/controllers/api_controller.rb"
+    assert_no_file "app/forms/main_form.rb"
+    assert_no_file "app/operations/main_operation.rb"
+    assert_no_file "app/serializers/main_serializer.rb"
+    assert_no_file "lib/errors/application_error.rb"
+    assert_no_file "lib/errors/resource_error.rb"
+  end
 end

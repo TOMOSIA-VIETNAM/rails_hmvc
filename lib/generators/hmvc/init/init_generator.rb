@@ -3,6 +3,8 @@
 module RailsHmvc
   module Generators
     class InitGenerator < Rails::Generators::Base
+      namespace "hmvc:init"
+
       source_root File.expand_path("templates", __dir__)
 
       def create_hmvc_directories

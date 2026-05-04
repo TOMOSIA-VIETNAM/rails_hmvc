@@ -59,4 +59,13 @@ RSpec.describe RailsHmvc::Generators::ControllerGenerator, type: :generator do
     gen = described_class.new(%w[v1/feeds], { type: "web" }, { destination_root: destination_root })
     expect(gen.send(:render_web_response, "publish")).to eq("render :publish")
   end
+
+  it "removes generated files when destroyed" do
+    run_generator %w[v1/posts]
+    run_generator %w[v1/posts], behavior: :revoke
+    assert_no_file "app/controllers/v1/posts_controller.rb"
+    assert_no_file "app/operations/v1/posts/index_operation.rb"
+    assert_no_file "app/operations/v1/posts/create_operation.rb"
+    assert_no_file "app/forms/v1/posts/create_form.rb"
+  end
 end

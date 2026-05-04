@@ -7,6 +7,8 @@ require_relative "../generator_helpers"
 module RailsHmvc
   module Generators
     class ControllerGenerator < Rails::Generators::NamedBase
+      namespace "hmvc:controller"
+
       include GeneratorHelpers
 
       source_root File.expand_path("templates", __dir__)
@@ -47,12 +49,12 @@ module RailsHmvc
         return if skip_operation?
 
         actions.each do |action|
-          Rails::Generators.invoke("rails_hmvc:operation", [
+          Rails::Generators.invoke("hmvc:operation", [
                                      "#{namespace_path}/#{plural_name}/#{action}",
                                      "--type=#{@options[:type]}",
                                      "--parent=#{@options[:parent_operation]}",
                                      "--steps=#{@options[:steps]}"
-                                   ], destination_root: destination_root)
+                                   ], destination_root: destination_root, behavior: behavior)
         end
       end
 
@@ -66,12 +68,12 @@ module RailsHmvc
           next if skip_actions.include?(action)
           next unless actions.include?(action)
 
-          Rails::Generators.invoke("rails_hmvc:form", [
+          Rails::Generators.invoke("hmvc:form", [
                                      "#{namespace_path}/#{plural_name}/#{action}",
                                      "--type=#{@options[:type]}",
                                      "--parent=#{@options[:parent_form]}",
                                      "--attributes=#{@options[:attributes]}"
-                                   ], destination_root: destination_root)
+                                   ], destination_root: destination_root, behavior: behavior)
         end
       end
 

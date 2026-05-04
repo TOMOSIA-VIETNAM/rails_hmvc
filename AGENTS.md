@@ -7,23 +7,27 @@ A Ruby gem that generates HMVC components (controllers, forms, operations, seria
 ## Project Structure
 
 ```
+exe/
+└── hmvc                       # CLI binary (hmvc init, hmvc g controller …)
+
 lib/
 ├── rails_hmvc.rb              # Entrypoint, Railtie, generator registration
 ├── rails_hmvc/version.rb
 ├── errors/                    # Error classes shipped with gem
 └── generators/hmvc/           # All generators + templates
     ├── generator_helpers.rb   # Shared config loading
-    ├── init/                  # rails_hmvc:init
-    ├── controller/            # rails_hmvc:controller (invokes operation + form)
-    ├── form/                  # rails_hmvc:form
-    └── operation/             # rails_hmvc:operation
+    ├── init/                  # hmvc:init
+    ├── controller/            # hmvc:controller (invokes operation + form)
+    ├── form/                  # hmvc:form
+    └── operation/             # hmvc:operation
 ```
 
 ## How It Works
 
-1. `rails g rails_hmvc:init --type=api` — scaffolds base classes + config
-2. `rails g rails_hmvc:controller v1/users --type=api` — generates controller + operations + forms
+1. `hmvc init --type=api` — scaffolds base classes + config (or `rails g hmvc:init`)
+2. `hmvc g controller v1/users --type=api` — generates controller + operations + forms (or `rails g hmvc:controller`)
 3. Defaults come from `config/rails_hmvc.yml`; CLI flags override
+4. Legacy `rails g rails_hmvc:*` still works via fallback (prints no warning, delegates to `hmvc:*`)
 
 ## Development Environment
 

@@ -17,6 +17,7 @@ AllCops:
     - "spec/dummy/**/*"
     - "vendor/**/*"
     - "gemfiles/**/*"
+    - "exe/**/*"
 
 Style/StringLiterals:
   Enabled: true

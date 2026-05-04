@@ -1,0 +1,64 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path("../lib", __dir__)
+require "rails_hmvc/version"
+
+HELP = <<~HELP
+  Usage: hmvc <command> [options]
+
+  Commands:
+    hmvc init [--type=api|web]                Initialize HMVC structure in your Rails app
+    hmvc g <generator> <name> [options]       Generate an HMVC component
+    hmvc generate <generator> <name> [options]
+    hmvc d <generator> <name> [options]       Destroy (remove) generated files
+    hmvc destroy <generator> <name> [options]
+    hmvc version                              Print version
+
+  Generators:
+    controller    Generate a versioned controller + operations + forms
+    operation     Generate operation class(es)
+    form          Generate form class(es)
+
+  Examples:
+    hmvc init --type=api
+    hmvc g controller v1/users --type=api
+    hmvc d controller v1/users --type=api
+    hmvc g operation v1/users/create
+    hmvc g form v1/users/create
+
+  You can also use the Rails generator directly:
+    rails g hmvc:controller v1/users --type=api
+    rails d hmvc:controller v1/users --type=api
+HELP
+
+command = ARGV.shift
+
+case command
+when "version", "--version", "-v"
+  puts RailsHmvc::VERSION
+when "init"
+  exec "bundle", "exec", "rails", "g", "hmvc:init", *ARGV
+when "g", "generate"
+  generator = ARGV.shift
+  if generator.nil?
+    warn "Error: generator name required"
+    warn "Run `hmvc --help` for usage"
+    exit 1
+  end
+  exec "bundle", "exec", "rails", "g", "hmvc:#{generator}", *ARGV
+when "d", "destroy"
+  generator = ARGV.shift
+  if generator.nil?
+    warn "Error: generator name required"
+    warn "Run `hmvc --help` for usage"
+    exit 1
+  end
+  exec "bundle", "exec", "rails", "d", "hmvc:#{generator}", *ARGV
+when nil, "--help", "-h"
+  puts HELP
+else
+  warn "Error: unknown command '#{command}'"
+  warn "Run `hmvc --help` for usage"
+  exit 1
+end

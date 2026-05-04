@@ -45,11 +45,11 @@ module RailsHmvc
       end
 
       def namespace_path
-        class_path.join("/")
+        class_path.reject(&:empty?).join("/")
       end
 
       def namespace_name
-        class_path.map(&:camelize).join("::")
+        class_path.reject(&:empty?).map(&:camelize).join("::")
       end
 
       def singular_human_name

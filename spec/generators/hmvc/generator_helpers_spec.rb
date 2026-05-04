@@ -138,6 +138,24 @@ RSpec.describe RailsHmvc::Generators::GeneratorHelpers do
       expect(g.send(:namespace_path)).to eq("v1")
       expect(g.send(:namespace_name)).to eq("V1")
     end
+
+    it "strips a leading slash typo from namespace_path and namespace_name" do
+      g = named.new(["/v1/users"], {}, destination_root: dest)
+      expect(g.send(:namespace_path)).to eq("v1")
+      expect(g.send(:namespace_name)).to eq("V1")
+    end
+
+    it "strips multiple leading slashes" do
+      g = named.new(["//v1/users"], {}, destination_root: dest)
+      expect(g.send(:namespace_path)).to eq("v1")
+      expect(g.send(:namespace_name)).to eq("V1")
+    end
+
+    it "strips embedded double-slash typo" do
+      g = named.new(["v1//users"], {}, destination_root: dest)
+      expect(g.send(:namespace_path)).to eq("v1")
+      expect(g.send(:namespace_name)).to eq("V1")
+    end
   end
 
   describe "#singular_human_name" do

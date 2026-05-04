@@ -5,21 +5,34 @@ require_relative "lib/rails_hmvc/version"
 Gem::Specification.new do |spec|
   spec.name = "rails_hmvc"
   spec.version = RailsHmvc::VERSION
-  spec.authors = ["TOMOSIA VIETNAM"]
-  spec.email = ["minh.tang1@tomosia.com", "anh.nguyen1@tomosia.com"]
+  spec.authors = ["TOMOSIA VIETNAM", "Ruby Team"]
+  spec.email = [
+    "anh.nguyen1@tomosia.com",
+    "minh.tang1@tomosia.com",
+    "thuan.nguyen1@tomosia.com",
+    "vu.nguyen@tomosia.com",
+    "ho.nguyen@tomosia.com",
+    "luan.dang2@tomosia.com"
+  ]
 
-  spec.summary = "Rails HMVC architecture implementation"
-  spec.description = "A gem that provides HMVC architecture pattern for Rails applications with " \
-                     "controllers, forms, operations, and serializers"
+  spec.summary = "HMVC for Rails—endpoints that absorbed every concern get boundaries again"
+  spec.description = "Velocity feels free until each endpoint becomes a junk drawer: inputs, rules, " \
+                     "data access, and responses tangled together, and tests only stay honest under full HTTP. " \
+                     "Rails HMVC encodes one repeatable lifecycle across versioned APIs so teams stop paying " \
+                     "interest on shortcuts. Maintained by TOMOSIA VIETNAM."
   spec.homepage = "https://github.com/TOMOSIA-VIETNAM/rails_hmvc"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 2.7.0"
 
-  spec.metadata["allowed_push_host"] = "https://rubygems.org"
-
-  spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://github.com/TOMOSIA-VIETNAM/rails_hmvc"
-  spec.metadata["changelog_uri"] = "https://github.com/TOMOSIA-VIETNAM/rails_hmvc/blob/main/CHANGELOG.md"
+  spec.metadata = {
+    "allowed_push_host" => "https://rubygems.org",
+    "homepage_uri" => spec.homepage,
+    "source_code_uri" => "https://github.com/TOMOSIA-VIETNAM/rails_hmvc",
+    "changelog_uri" => "https://github.com/TOMOSIA-VIETNAM/rails_hmvc/blob/main/CHANGELOG.md",
+    "bug_tracker_uri" => "https://github.com/TOMOSIA-VIETNAM/rails_hmvc/issues",
+    "documentation_uri" => "https://github.com/TOMOSIA-VIETNAM/rails_hmvc/tree/main/docs/en",
+    "rubygems_mfa_required" => "true"
+  }
 
   spec.files = Dir.chdir(__dir__) do
     `git ls-files -z`.split("\x0").reject do |f|
@@ -39,7 +52,7 @@ Gem::Specification.new do |spec|
     end
   end
   spec.bindir = "exe"
-  spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
+  spec.executables = ["hmvc"]
   spec.require_paths = ["lib"]
 
   spec.add_dependency "active_model_serializers", "~> 0.10.13"
@@ -54,7 +67,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "simplecov", "~> 0.22"
   spec.add_development_dependency "sqlite3", ">= 1.4"
 
-  # For more information and examples about making a new gem, check out our
-  # guide at: https://bundler.io/guides/creating_gem.html
   spec.metadata["rubygems_mfa_required"] = "true"
 end

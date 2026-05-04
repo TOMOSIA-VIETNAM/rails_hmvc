@@ -35,4 +35,17 @@ RSpec.describe RailsHmvc::Generators::FormGenerator, type: :generator do
     gen.instance_variable_set(:@current_action, "create")
     expect(gen.send(:form_path)).to eq("posts/create_form")
   end
+
+  it "removes generated files when destroyed" do
+    run_generator %w[v1/posts/create]
+    run_generator %w[v1/posts/create], behavior: :revoke
+    assert_no_file "app/forms/v1/posts/create_form.rb"
+  end
+
+  it "removes multiple form files when destroyed with --actions" do
+    run_generator %w[v1/comments --actions=create,update]
+    run_generator %w[v1/comments --actions=create,update], behavior: :revoke
+    assert_no_file "app/forms/v1/comments/create_form.rb"
+    assert_no_file "app/forms/v1/comments/update_form.rb"
+  end
 end

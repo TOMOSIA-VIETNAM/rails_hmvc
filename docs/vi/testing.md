@@ -22,7 +22,7 @@ bundle info rails_hmvc
 ### API project
 
 ```bash
-rails g rails_hmvc:init --type=api
+rails g hmvc:init --type=api
 ```
 
 Kiểm tra output:
@@ -55,7 +55,7 @@ Kiểm tra output:
 ### Web project
 
 ```bash
-rails g rails_hmvc:init --type=web
+rails g hmvc:init --type=web
 ```
 
 Output giống API, nội dung file khác (web-specific templates).
@@ -67,7 +67,7 @@ Output giống API, nội dung file khác (web-specific templates).
 ### Default actions (API)
 
 ```bash
-rails g rails_hmvc:controller v1/users --type=api
+rails g hmvc:controller v1/users --type=api
 ```
 
 Expected:
@@ -86,7 +86,7 @@ app/forms/v1/users/update_form.rb
 ### Default actions (Web)
 
 ```bash
-rails g rails_hmvc:controller admin/products --type=web
+rails g hmvc:controller admin/products --type=web
 ```
 
 Expected: 1 controller + 7 operations (thêm `new`, `edit`) + 2 forms.
@@ -94,7 +94,7 @@ Expected: 1 controller + 7 operations (thêm `new`, `edit`) + 2 forms.
 ### Limited actions
 
 ```bash
-rails g rails_hmvc:controller v1/posts --type=api --actions=index,show
+rails g hmvc:controller v1/posts --type=api --actions=index,show
 ```
 
 Expected: 1 controller + 2 operations + 0 forms.
@@ -102,7 +102,7 @@ Expected: 1 controller + 2 operations + 0 forms.
 ### Custom actions
 
 ```bash
-rails g rails_hmvc:controller v1/auth --type=api --actions=login,logout,register
+rails g hmvc:controller v1/auth --type=api --actions=login,logout,register
 ```
 
 Expected: 1 controller + 3 operations + forms tùy theo config.
@@ -110,7 +110,7 @@ Expected: 1 controller + 3 operations + forms tùy theo config.
 ### Skip operations
 
 ```bash
-rails g rails_hmvc:controller v1/categories --type=api --skip_operation
+rails g hmvc:controller v1/categories --type=api --skip_operation
 ```
 
 Expected: 1 controller + 0 operations + 2 forms.
@@ -118,7 +118,7 @@ Expected: 1 controller + 0 operations + 2 forms.
 ### Skip forms
 
 ```bash
-rails g rails_hmvc:controller v1/tags --type=api --skip_form
+rails g hmvc:controller v1/tags --type=api --skip_form
 ```
 
 Expected: 1 controller + 5 operations + 0 forms.
@@ -126,7 +126,7 @@ Expected: 1 controller + 5 operations + 0 forms.
 ### Skip both
 
 ```bash
-rails g rails_hmvc:controller v1/comments --type=api --skip_operation --skip_form
+rails g hmvc:controller v1/comments --type=api --skip_operation --skip_form
 ```
 
 Expected: 1 controller, không có operations và forms.
@@ -138,7 +138,7 @@ Expected: 1 controller, không có operations và forms.
 ### Single operation
 
 ```bash
-rails g rails_hmvc:operation v1/payments/process
+rails g hmvc:operation v1/payments/process
 ```
 
 Expected: `app/operations/v1/payments/process_operation.rb`
@@ -146,7 +146,7 @@ Expected: `app/operations/v1/payments/process_operation.rb`
 ### Multiple operations
 
 ```bash
-rails g rails_hmvc:operation v1/orders --actions=approve,reject,ship
+rails g hmvc:operation v1/orders --actions=approve,reject,ship
 ```
 
 Expected:
@@ -160,7 +160,7 @@ app/operations/v1/orders/ship_operation.rb
 ### With step methods
 
 ```bash
-rails g rails_hmvc:operation v1/checkout/complete --steps=validate,process_payment,create_order
+rails g hmvc:operation v1/checkout/complete --steps=validate,process_payment,create_order
 ```
 
 Expected: `app/operations/v1/checkout/complete_operation.rb` với 3 `step_` methods.
@@ -172,7 +172,7 @@ Expected: `app/operations/v1/checkout/complete_operation.rb` với 3 `step_` met
 ### Single form với attributes
 
 ```bash
-rails g rails_hmvc:form v1/auth/login --attributes=email:string,password:string
+rails g hmvc:form v1/auth/login --attributes=email:string,password:string
 ```
 
 Expected: `app/forms/v1/auth/login_form.rb` với `attribute :email, :string` và `attribute :password, :string`.
@@ -180,7 +180,7 @@ Expected: `app/forms/v1/auth/login_form.rb` với `attribute :email, :string` v�
 ### Multiple forms
 
 ```bash
-rails g rails_hmvc:form v1/products --actions=create,update --attributes=name:string,price:decimal,active:boolean
+rails g hmvc:form v1/products --actions=create,update --attributes=name:string,price:decimal,active:boolean
 ```
 
 Expected:
@@ -195,7 +195,7 @@ Cả hai đều có 3 attributes.
 ### Form không có attributes
 
 ```bash
-rails g rails_hmvc:form v1/auth/logout
+rails g hmvc:form v1/auth/logout
 ```
 
 Expected: `app/forms/v1/auth/logout_form.rb` với default `attribute :name, :string`.
@@ -208,16 +208,16 @@ Test đầy đủ một resource hoàn chỉnh:
 
 ```bash
 # 1. Init
-rails g rails_hmvc:init --type=api
+rails g hmvc:init --type=api
 
 # 2. Generate resource chính
-rails g rails_hmvc:controller v1/articles --type=api
+rails g hmvc:controller v1/articles --type=api
 
 # 3. Operation thêm (ngoài CRUD)
-rails g rails_hmvc:operation v1/articles/publish --steps=validate,notify
+rails g hmvc:operation v1/articles/publish --steps=validate,notify
 
 # 4. Form search tùy chỉnh
-rails g rails_hmvc:form v1/articles/search --attributes=keyword:string,category_id:integer,published:boolean
+rails g hmvc:form v1/articles/search --attributes=keyword:string,category_id:integer,published:boolean
 ```
 
 Kiểm tra: tất cả files tồn tại, đúng namespace, đúng inheritance, consistent naming.

@@ -2,25 +2,27 @@
 
 Tất cả generators đọc defaults từ `config/rails_hmvc.yml`. CLI flags override config.
 
-## `rails_hmvc:init`
+Dùng `rails g hmvc:<name>` để generate và `rails d hmvc:<name>` để xóa các file đã tạo với cùng tham số. CLI `hmvc g <name>` là alias ngắn hơn của `rails g hmvc:<name>`.
+
+## `hmvc:init`
 
 Khởi tạo HMVC structure cho Rails app.
 
 ```bash
-rails g rails_hmvc:init --type=api
-rails g rails_hmvc:init --type=web
+rails g hmvc:init --type=api
+rails g hmvc:init --type=web
 ```
 
 **Output:** Tạo thư mục, base classes, concerns, error classes, `config/rails_hmvc.yml`.
 
 ---
 
-## `rails_hmvc:controller`
+## `hmvc:controller`
 
 Tạo controller kèm operations và forms tương ứng.
 
 ```bash
-rails g rails_hmvc:controller v1/users --type=api
+rails g hmvc:controller v1/users --type=api
 ```
 
 **Output mặc định (API):**
@@ -52,23 +54,31 @@ app/forms/v1/users/update_form.rb
 
 ```bash
 # Actions tùy chỉnh (không phải CRUD)
-rails g rails_hmvc:controller v1/auth --type=api --actions=login,register,logout
+rails g hmvc:controller v1/auth --type=api --actions=login,register,logout
 
 # Chỉ tạo controller + forms, không tạo operations
-rails g rails_hmvc:controller v1/categories --type=api --skip_operation
+rails g hmvc:controller v1/categories --type=api --skip_operation
 
 # Web controller (tạo thêm new, edit actions)
-rails g rails_hmvc:controller admin/products --type=web
+rails g hmvc:controller admin/products --type=web
 ```
+
+**Destroy:**
+
+```bash
+rails d hmvc:controller v1/users --type=api
+```
+
+Xóa tất cả file đã tạo bởi lệnh `rails g` tương ứng.
 
 ---
 
-## `rails_hmvc:operation`
+## `hmvc:operation`
 
 Tạo operation(s) riêng lẻ.
 
 ```bash
-rails g rails_hmvc:operation v1/payments/process
+rails g hmvc:operation v1/payments/process
 ```
 
 **Options:**
@@ -84,23 +94,23 @@ rails g rails_hmvc:operation v1/payments/process
 
 ```bash
 # Một operation đơn
-rails g rails_hmvc:operation v1/payments/process
+rails g hmvc:operation v1/payments/process
 
 # Nhiều operations cùng lúc
-rails g rails_hmvc:operation v1/orders --actions=approve,reject,ship
+rails g hmvc:operation v1/orders --actions=approve,reject,ship
 
 # Operation với step methods được tạo sẵn
-rails g rails_hmvc:operation v1/checkout/complete --steps=validate,process_payment,create_order
+rails g hmvc:operation v1/checkout/complete --steps=validate,process_payment,create_order
 ```
 
 ---
 
-## `rails_hmvc:form`
+## `hmvc:form`
 
 Tạo form(s) riêng lẻ.
 
 ```bash
-rails g rails_hmvc:form v1/auth/login --attributes=email:string,password:string
+rails g hmvc:form v1/auth/login --attributes=email:string,password:string
 ```
 
 **Options:**
@@ -116,10 +126,10 @@ rails g rails_hmvc:form v1/auth/login --attributes=email:string,password:string
 
 ```bash
 # Form với attributes
-rails g rails_hmvc:form v1/auth/login --attributes=email:string,password:string
+rails g hmvc:form v1/auth/login --attributes=email:string,password:string
 
 # Nhiều forms cùng attributes
-rails g rails_hmvc:form v1/products --actions=create,update --attributes=name:string,price:decimal,active:boolean
+rails g hmvc:form v1/products --actions=create,update --attributes=name:string,price:decimal,active:boolean
 ```
 
 ---

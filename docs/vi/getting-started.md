@@ -24,7 +24,8 @@ bundle install
 ## 2. Khởi tạo HMVC structure
 
 ```bash
-rails g rails_hmvc:init --type=api
+rails g hmvc:init --type=api
+# hoặc ngắn hơn: hmvc init --type=api
 ```
 
 Lệnh này tạo ra toàn bộ cấu trúc thư mục, base classes, concerns, và config file:
@@ -53,12 +54,19 @@ config/
 └── rails_hmvc.yml                # Generator defaults
 ```
 
-> Với web app: `rails g rails_hmvc:init --type=web`
+> Với web app: `rails g hmvc:init --type=web`
 
 ## 3. Tạo resource đầu tiên
 
 ```bash
-rails g rails_hmvc:controller v1/users --type=api
+rails g hmvc:controller v1/users --type=api
+# hoặc ngắn hơn: hmvc g controller v1/users --type=api
+```
+
+Để xóa các file đã generate, dùng `rails d` với cùng tham số:
+
+```bash
+rails d hmvc:controller v1/users --type=api
 ```
 
 Kết quả:

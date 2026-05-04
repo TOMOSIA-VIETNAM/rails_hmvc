@@ -33,7 +33,7 @@
 <!--
 If manually tested, record the command and result:
 ```
-rails g rails_hmvc:controller v1/users --type=api
+rails g hmvc:controller v1/users --type=api
 # => Creates controller, 5 operations, 2 forms
 ```
 -->

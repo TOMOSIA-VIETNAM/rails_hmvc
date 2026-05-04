@@ -30,4 +30,17 @@ RSpec.describe RailsHmvc::Generators::OperationGenerator, type: :generator do
     gen.instance_variable_set(:@current_action, "create")
     expect(gen.send(:operation_path)).to eq("posts/create_operation")
   end
+
+  it "removes generated files when destroyed" do
+    run_generator %w[v1/posts/create]
+    run_generator %w[v1/posts/create], behavior: :revoke
+    assert_no_file "app/operations/v1/posts/create_operation.rb"
+  end
+
+  it "removes multiple operation files when destroyed with --actions" do
+    run_generator %w[v1/orders --actions=approve,reject]
+    run_generator %w[v1/orders --actions=approve,reject], behavior: :revoke
+    assert_no_file "app/operations/v1/orders/approve_operation.rb"
+    assert_no_file "app/operations/v1/orders/reject_operation.rb"
+  end
 end

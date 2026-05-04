@@ -22,7 +22,7 @@ bundle info rails_hmvc
 ### API project
 
 ```bash
-rails g rails_hmvc:init --type=api
+rails g hmvc:init --type=api
 ```
 
 Verify the layout:
@@ -55,7 +55,7 @@ Verify the layout:
 ### Web project
 
 ```bash
-rails g rails_hmvc:init --type=web
+rails g hmvc:init --type=web
 ```
 
 Structure matches the API run; template contents differ (web-oriented stubs).
@@ -67,7 +67,7 @@ Structure matches the API run; template contents differ (web-oriented stubs).
 ### Default actions (API)
 
 ```bash
-rails g rails_hmvc:controller v1/users --type=api
+rails g hmvc:controller v1/users --type=api
 ```
 
 Expected files:
@@ -86,7 +86,7 @@ app/forms/v1/users/update_form.rb
 ### Default actions (Web)
 
 ```bash
-rails g rails_hmvc:controller admin/products --type=web
+rails g hmvc:controller admin/products --type=web
 ```
 
 Expect one controller, seven operations (`new` and `edit` included), and two forms.
@@ -94,7 +94,7 @@ Expect one controller, seven operations (`new` and `edit` included), and two for
 ### Limited actions
 
 ```bash
-rails g rails_hmvc:controller v1/posts --type=api --actions=index,show
+rails g hmvc:controller v1/posts --type=api --actions=index,show
 ```
 
 Expect one controller, two operations, and no forms.
@@ -102,7 +102,7 @@ Expect one controller, two operations, and no forms.
 ### Custom actions
 
 ```bash
-rails g rails_hmvc:controller v1/auth --type=api --actions=login,logout,register
+rails g hmvc:controller v1/auth --type=api --actions=login,logout,register
 ```
 
 Expect one controller, three operations, and forms according to `rails_hmvc.yml`.
@@ -110,7 +110,7 @@ Expect one controller, three operations, and forms according to `rails_hmvc.yml`
 ### Skip operations
 
 ```bash
-rails g rails_hmvc:controller v1/categories --type=api --skip_operation
+rails g hmvc:controller v1/categories --type=api --skip_operation
 ```
 
 Expect one controller, no operations, and two forms.
@@ -118,7 +118,7 @@ Expect one controller, no operations, and two forms.
 ### Skip forms
 
 ```bash
-rails g rails_hmvc:controller v1/tags --type=api --skip_form
+rails g hmvc:controller v1/tags --type=api --skip_form
 ```
 
 Expect one controller, five operations, and no forms.
@@ -126,7 +126,7 @@ Expect one controller, five operations, and no forms.
 ### Skip both
 
 ```bash
-rails g rails_hmvc:controller v1/comments --type=api --skip_operation --skip_form
+rails g hmvc:controller v1/comments --type=api --skip_operation --skip_form
 ```
 
 Expect only the controller.
@@ -138,7 +138,7 @@ Expect only the controller.
 ### Single operation
 
 ```bash
-rails g rails_hmvc:operation v1/payments/process
+rails g hmvc:operation v1/payments/process
 ```
 
 Expected: `app/operations/v1/payments/process_operation.rb`
@@ -146,7 +146,7 @@ Expected: `app/operations/v1/payments/process_operation.rb`
 ### Multiple operations
 
 ```bash
-rails g rails_hmvc:operation v1/orders --actions=approve,reject,ship
+rails g hmvc:operation v1/orders --actions=approve,reject,ship
 ```
 
 Expected:
@@ -160,7 +160,7 @@ app/operations/v1/orders/ship_operation.rb
 ### With step methods
 
 ```bash
-rails g rails_hmvc:operation v1/checkout/complete --steps=validate,process_payment,create_order
+rails g hmvc:operation v1/checkout/complete --steps=validate,process_payment,create_order
 ```
 
 Expected: `app/operations/v1/checkout/complete_operation.rb` containing three `step_*` methods.
@@ -172,7 +172,7 @@ Expected: `app/operations/v1/checkout/complete_operation.rb` containing three `s
 ### Single form with attributes
 
 ```bash
-rails g rails_hmvc:form v1/auth/login --attributes=email:string,password:string
+rails g hmvc:form v1/auth/login --attributes=email:string,password:string
 ```
 
 Expected: `app/forms/v1/auth/login_form.rb` declaring `attribute :email, :string` and `attribute :password, :string`.
@@ -180,7 +180,7 @@ Expected: `app/forms/v1/auth/login_form.rb` declaring `attribute :email, :string
 ### Multiple forms
 
 ```bash
-rails g rails_hmvc:form v1/products --actions=create,update --attributes=name:string,price:decimal,active:boolean
+rails g hmvc:form v1/products --actions=create,update --attributes=name:string,price:decimal,active:boolean
 ```
 
 Expected:
@@ -195,7 +195,7 @@ Both include the same three attributes.
 ### Form without explicit attributes
 
 ```bash
-rails g rails_hmvc:form v1/auth/logout
+rails g hmvc:form v1/auth/logout
 ```
 
 Expected: `app/forms/v1/auth/logout_form.rb` with the generator default `attribute :name, :string`.
@@ -208,16 +208,16 @@ Walk through a full resource plus extras:
 
 ```bash
 # 1. Init
-rails g rails_hmvc:init --type=api
+rails g hmvc:init --type=api
 
 # 2. Primary CRUD resource
-rails g rails_hmvc:controller v1/articles --type=api
+rails g hmvc:controller v1/articles --type=api
 
 # 3. Additional operation beyond CRUD
-rails g rails_hmvc:operation v1/articles/publish --steps=validate,notify
+rails g hmvc:operation v1/articles/publish --steps=validate,notify
 
 # 4. Custom search form
-rails g rails_hmvc:form v1/articles/search --attributes=keyword:string,category_id:integer,published:boolean
+rails g hmvc:form v1/articles/search --attributes=keyword:string,category_id:integer,published:boolean
 ```
 
 Assert every file exists, namespaces line up, inheritance matches your bases, and naming stays consistent.

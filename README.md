@@ -7,6 +7,8 @@
 
 Rails HMVC fixes this by introducing two new layers — **Form** and **Operation** — between the controller and model, each with a single clear responsibility. One command generates the entire structure.
 
+**Official package:** On RubyGems, install **`rails_hmvc`** — releases are published by **TOMOSIA VIETNAM** from this repository ([source](https://github.com/TOMOSIA-VIETNAM/rails_hmvc)). Use that gem name in your `Gemfile` for the maintained release line.
+
 ## The Problem
 
 As Rails apps grow, MVC breaks down:
@@ -32,7 +34,8 @@ Rails HMVC enforces separation of concerns through **5 layers**, each doing exac
 One generator creates everything:
 
 ```bash
-rails g rails_hmvc:controller v1/users --type=api
+rails g hmvc:controller v1/users --type=api
+# or shorter: hmvc g controller v1/users --type=api
 ```
 
 This generates: 1 controller, 5 operations, 2 forms — all wired up, all following the same pattern.
@@ -48,10 +51,15 @@ gem 'rails_hmvc'
 bundle install
 
 # Initialize HMVC structure
-rails g rails_hmvc:init --type=api
+rails g hmvc:init --type=api
+# or shorter: hmvc init --type=api
 
 # Generate your first resource
-rails g rails_hmvc:controller v1/users --type=api
+rails g hmvc:controller v1/users --type=api
+# or shorter: hmvc g controller v1/users --type=api
+
+# To remove generated files
+rails d hmvc:controller v1/users --type=api
 ```
 
 That's it. Your app now has:
