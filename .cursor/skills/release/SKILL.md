@@ -75,11 +75,16 @@ This runs steps 1–6 below but **stops after `gem build`** without pushing:
 
 After `--prepare` completes, the agent should tell the user to run:
 
-**Phase 2 — Human runs `--deploy`** (prompts for OTP, pushes gem + git tags):
+**Phase 2 — Human runs `--deploy`** (prompts for OTP, pushes gem + git tags + creates GitHub Release):
 
 ```bash
 bin/release 1.2.0 --deploy
 ```
+
+The `--deploy` step automatically:
+1. Prompts for OTP, pushes gem to RubyGems
+2. Pushes commits + tags (detects `.cursor/remote` for temp-remote environments)
+3. Creates a GitHub Release with notes from `CHANGELOG.md` (requires `gh` CLI)
 
 ### Full release (when OTP is not required)
 
@@ -88,7 +93,7 @@ bin/release 1.2.0              # uses GEM_HOST_API_KEY from .env
 bin/release 1.2.0 -k work     # uses named key from ~/.gem/credentials
 ```
 
-Runs all 6 steps including `gem push`, then prints instructions to push git tags.
+Runs all 6 steps including `gem push`, then prints instructions to push git tags and create release.
 
 ### Yanking a version
 
@@ -96,6 +101,14 @@ Runs all 6 steps including `gem push`, then prints instructions to push git tags
 bin/yank 0.1.0              # uses GEM_HOST_API_KEY from .env
 bin/yank 0.1.0 -k work     # uses named key from ~/.gem/credentials
 ```
+
+## Git Remote: no-remote environments
+
+When `.cursor/remote` exists in the project root, the repo has **no persistent `git remote`** (security policy). The deploy script detects this and uses `~/.shared/scripts/git-temp-remote.zsh` (which must be sourced in `~/.zshrc`) to push via a temporary remote.
+
+- `.cursor/remote` contains the remote URL (e.g. `git@github.com:TOMOSIA-VIETNAM/rails_hmvc.git`)
+- The script adds a temp remote, pushes, then removes it immediately
+- On devices with a normal `git remote origin`, this is ignored — standard `git push` is used
 
 ## Manual Steps (if script unavailable)
 
@@ -108,7 +121,8 @@ bin/yank 0.1.0 -k work     # uses named key from ~/.gem/credentials
 7. `gem build rails_hmvc.gemspec`
 8. `gem push rails_hmvc-X.Y.Z.gem --otp <YOUR_OTP>`
 9. `rm rails_hmvc-*.gem`
-10. `git push origin main --tags`
+10. Push tags + commits (use temp-remote if `.cursor/remote` exists, otherwise `git push origin main --tags`)
+11. `gh release create vX.Y.Z --title "vX.Y.Z" --generate-notes`
 
 ## Gem Packaging
 

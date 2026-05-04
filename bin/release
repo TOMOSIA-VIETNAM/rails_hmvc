@@ -79,9 +79,35 @@ if [[ "$MODE" == "deploy" ]]; then
   ok "Pushed to RubyGems"
   rm -f "$GEM_FILE"
 
-  step "2/2" "Pushing commits and tags to remote"
-  git push origin main --tags
+  step "2/3" "Pushing commits and tags to remote"
+  REMOTE_FILE="$(git rev-parse --show-toplevel)/.cursor/remote"
+  if [[ -f "$REMOTE_FILE" ]]; then
+    ok "Detected .cursor/remote — using temp remote via git-temp-remote.zsh"
+    source ~/.shared/scripts/git-temp-remote.zsh
+    _git_with_temp_remote push --tags
+    _git_with_temp_remote push
+  else
+    git push origin main --tags
+  fi
   ok "Pushed to GitHub"
+
+  step "3/3" "Creating GitHub Release"
+  RELEASE_NOTES=$(awk -v ver="$VERSION" '
+    $0 ~ "^## \\[" ver "\\]" {found=1; next}
+    found && /^## \[/ {exit}
+    found {print}
+  ' "$CHANGELOG")
+
+  if command -v gh >/dev/null 2>&1; then
+    if [[ -z "$(echo "$RELEASE_NOTES" | tr -d '[:space:]')" ]]; then
+      gh release create "v$VERSION" --title "v$VERSION" --generate-notes
+    else
+      echo "$RELEASE_NOTES" | gh release create "v$VERSION" --title "v$VERSION" --notes-file -
+    fi
+    ok "GitHub Release v$VERSION created"
+  else
+    echo "  gh CLI not found — skip GitHub Release (create manually)"
+  fi
 
   divider
   echo ""
@@ -226,6 +252,13 @@ divider
 echo ""
 echo "  Released v$VERSION successfully!"
 echo ""
-echo "  Next: push commits and tags to remote"
-echo "    git push origin main --tags"
+echo "  Next: push commits, tags, and create GitHub Release"
+REMOTE_FILE="$(git rev-parse --show-toplevel)/.cursor/remote"
+if [[ -f "$REMOTE_FILE" ]]; then
+  echo "    source ~/.shared/scripts/git-temp-remote.zsh"
+  echo "    _git_with_temp_remote push --tags && _git_with_temp_remote push"
+else
+  echo "    git push origin main --tags"
+fi
+echo "    gh release create v$VERSION --title 'v$VERSION' --generate-notes"
 divider
